@@ -63,12 +63,10 @@ const documentSchema = new mongoose.Schema(
     },
     landParcelId: {
       type: String,
-      default: 'PARCEL-142-3',
       index: true,
     },
     acquisitionRequestId: {
       type: String,
-      default: 'LA-2026-0245',
       index: true,
     },
     // Backwards-compatible references for existing modules
@@ -212,7 +210,11 @@ documentSchema.pre('save', function (next) {
   if (!this.storedName) this.storedName = this.storageKey ? this.storageKey.split('/').pop() : this.documentId;
   if (!this.path) this.path = this.storageKey;
   if (!this.size) this.size = this.fileSize;
-  if (!this.hash) this.hash = this.fileHash;
+  if (!this.hash) {
+    this.hash = (this.fileHash || '').replace(/^sha256:/i, '');
+  } else {
+    this.hash = this.hash.replace(/^sha256:/i, '');
+  }
   if (!this.requestId) this.requestId = this.acquisitionRequestId;
   if (!this.aiStatus) this.aiStatus = this.aiProcessingStatus;
   next();

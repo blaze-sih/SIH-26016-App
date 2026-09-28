@@ -224,6 +224,14 @@ router.get(
 
 // ── Compensation Routes ───────────────────────────────────────────────────────
 
+// GET /compensation — Compensation overview list
+router.get(
+  '/compensation',
+  authenticateUser,
+  authorizeRoles(...OFFICER_ROLES, LAND_OWNER),
+  web.compensationList
+);
+
 // GET /compensation/:requestId — Compensation detail
 router.get(
   '/compensation/:requestId',
@@ -231,6 +239,97 @@ router.get(
   authorizeRoles(SUPER_ADMIN, FINANCE_OFFICER, LAND_OWNER, ...AUTHORITY_ROLES),
   web.compensationDetail
 );
+
+// ── Case Lifecycle Action Routes ──────────────────────────────────────────────
+
+// POST /land/:requestId/approval-action — One-click approve/forward/reject
+router.post(
+  '/land/:requestId/approval-action',
+  authenticateUser,
+  authorizeRoles(...AUTHORITY_ROLES),
+  web.postApprovalAction
+);
+
+// POST /land/:requestId/verify-action — Attribute correction & verify
+router.post(
+  '/land/:requestId/verify-action',
+  authenticateUser,
+  authorizeRoles(SUPER_ADMIN, VERIFICATION_OFFICER, DISTRICT_AUTHORITY),
+  web.postVerifyAction
+);
+
+// POST /land/:requestId/notification — Issue Section 4/11 Gazette Notification
+router.post(
+  '/land/:requestId/notification',
+  authenticateUser,
+  authorizeRoles(SUPER_ADMIN, DISTRICT_AUTHORITY, STATE_AUTHORITY),
+  web.postIssueNotification
+);
+
+// POST /land/:requestId/award — Declare Section 23 Award
+router.post(
+  '/land/:requestId/award',
+  authenticateUser,
+  authorizeRoles(SUPER_ADMIN, DISTRICT_AUTHORITY, FINANCE_OFFICER),
+  web.postDeclareAward
+);
+
+// POST /land/:requestId/compensation — Calculate/Assess valuation
+router.post(
+  '/land/:requestId/compensation',
+  authenticateUser,
+  authorizeRoles(SUPER_ADMIN, FINANCE_OFFICER, DISTRICT_AUTHORITY),
+  web.postAssessCompensation
+);
+
+// POST /land/:requestId/disburse — Sandbox Direct Bank Disbursement
+router.post(
+  '/land/:requestId/disburse',
+  authenticateUser,
+  authorizeRoles(SUPER_ADMIN, FINANCE_OFFICER, CENTRAL_AUTHORITY),
+  web.postDisburseCompensation
+);
+
+// POST /land/:requestId/possession — Record Panchnama & Handover
+router.post(
+  '/land/:requestId/possession',
+  authenticateUser,
+  authorizeRoles(SUPER_ADMIN, DISTRICT_AUTHORITY, PROJECT_OFFICER),
+  web.postUpdatePossession
+);
+
+// POST /land/:requestId/rnr — Update Rehabilitation & Resettlement status
+router.post(
+  '/land/:requestId/rnr',
+  authenticateUser,
+  authorizeRoles(SUPER_ADMIN, DISTRICT_AUTHORITY, STATE_AUTHORITY),
+  web.postUpdateRnR
+);
+
+// POST /land/:requestId/close — Finalize & Close Case
+router.post(
+  '/land/:requestId/close',
+  authenticateUser,
+  authorizeRoles(SUPER_ADMIN, DISTRICT_AUTHORITY, CENTRAL_AUTHORITY),
+  web.postCloseCase
+);
+
+// GET & POST Field Survey Mode
+router.get('/land/:requestId/field-mode', authenticateUser, authorizeRoles(...OFFICER_ROLES), web.fieldMode);
+router.post('/land/:requestId/field-mode', authenticateUser, authorizeRoles(...OFFICER_ROLES), web.submitFieldMode);
+router.get('/field-mode/:requestId', authenticateUser, authorizeRoles(...OFFICER_ROLES), web.fieldMode);
+router.post('/field-mode/:requestId', authenticateUser, authorizeRoles(...OFFICER_ROLES), web.submitFieldMode);
+
+// ── General Profile & Aliases ─────────────────────────────────────────────────
+
+// GET /profile
+router.get('/profile', authenticateUser, web.userProfile);
+
+// Convenience Aliases
+router.get('/land', authenticateUser, (req, res) => res.redirect('/land/requests'));
+router.get('/cases', authenticateUser, (req, res) => res.redirect('/land/requests'));
+router.get('/verification', authenticateUser, (req, res) => res.redirect('/verification/queue'));
+router.get('/approvals', authenticateUser, (req, res) => res.redirect('/approvals/queue'));
 
 // ── System & Audit ────────────────────────────────────────────────────────────
 

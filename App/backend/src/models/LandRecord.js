@@ -149,17 +149,53 @@ const landRecordSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    // ── Notifications (Section 13) ──────────────────────────────────────────
+    notificationNumber: { type: String, trim: true },
+    notificationDate: { type: Date },
+    notificationType: { type: String, trim: true },
+    notificationStatus: { type: String, default: 'Issued' },
+
+    // ── Award Details (Section 14) ───────────────────────────────────────────
+    awardNumber: { type: String, trim: true },
+    awardDate: { type: Date },
+    awardAmount: { type: Number, min: 0 },
+    awardStatus: { type: String, default: 'Declared' },
+
+    // ── Possession Details (Section 15) ──────────────────────────────────────
     possessionStatus: {
       type: String,
-      default: null,
+      enum: ['NOT_STARTED', 'IN_PROGRESS', 'POSSESSION_PENDING', 'POSSESSION_COMPLETED'],
+      default: 'NOT_STARTED',
     },
+    possessionDate: { type: Date },
+    possessionOfficer: { type: String, trim: true },
+    possessionOfficerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    possessionEvidenceDocumentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Document' },
+    possessionRemarks: { type: String, trim: true },
+
+    // ── R&R Details (Section 16) ─────────────────────────────────────────────
     rrStatus: {
       type: String,
-      default: null,
+      enum: ['NOT_STARTED', 'IN_PROGRESS', 'PARTIALLY_COMPLETED', 'COMPLETED'],
+      default: 'NOT_STARTED',
       comment: 'Rehabilitation & Resettlement status',
     },
+    rehabilitationStatus: {
+      type: String,
+      enum: ['NOT_STARTED', 'IN_PROGRESS', 'PARTIALLY_COMPLETED', 'COMPLETED'],
+      default: 'NOT_STARTED',
+    },
+    resettlementStatus: {
+      type: String,
+      enum: ['NOT_STARTED', 'IN_PROGRESS', 'PARTIALLY_COMPLETED', 'COMPLETED'],
+      default: 'NOT_STARTED',
+    },
+    benefitsProvided: [{ type: String }],
+    pendingActions: [{ type: String }],
+    affectedFamilies: { type: Number, default: 0 },
+    displacedFamilies: { type: Number, default: 0 },
 
-    // ── Assignment ────────────────────────────────────────────────────────────
+    // ── Assignment & Submission ──────────────────────────────────────────────
     currentAuthority: {
       type: String,
       trim: true,
@@ -172,6 +208,20 @@ const landRecordSchema = new mongoose.Schema(
     assignedOfficerName: {
       type: String,
       trim: true,
+    },
+    submittedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      index: true,
+    },
+    submittedByUserId: {
+      type: String,
+      trim: true,
+    },
+    landOwnerUserId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      index: true,
     },
 
     // ── References ────────────────────────────────────────────────────────────
@@ -218,10 +268,6 @@ const landRecordSchema = new mongoose.Schema(
         _id: false,
       },
     ],
-
-    // ── Affected families data ────────────────────────────────────────────────
-    affectedFamilies: { type: Number, default: 0 },
-    displacedFamilies: { type: Number, default: 0 },
   },
   {
     timestamps: true,

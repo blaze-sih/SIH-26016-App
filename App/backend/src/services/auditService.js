@@ -34,30 +34,39 @@ async function log({
   action,
   entityType,
   entityId,
+  targetType,
+  targetId,
   requestId,
   userId,
   userEmail,
   role,
+  userRole,
   previousState = null,
   newState = null,
   metadata = {},
+  details,
   req,
 } = {}) {
   try {
     const ipAddress = req ? (req.ip || null) : null;
     const userAgent = req ? (req.headers && req.headers['user-agent']) || null : null;
 
+    const resolvedEntityType = entityType || targetType || 'LAND_RECORD';
+    const resolvedEntityId = String(entityId || targetId || 'system');
+    const resolvedRole = role || userRole || null;
+    const resolvedMetadata = metadata && Object.keys(metadata).length > 0 ? metadata : (details || {});
+
     const auditLog = new AuditLog({
       action,
-      entityType,
-      entityId: String(entityId),
+      entityType: resolvedEntityType,
+      entityId: resolvedEntityId,
       requestId,
       userId,
       userEmail,
-      role,
+      role: resolvedRole,
       previousState,
       newState,
-      metadata,
+      metadata: resolvedMetadata,
       ipAddress,
       userAgent,
       timestamp: new Date(),

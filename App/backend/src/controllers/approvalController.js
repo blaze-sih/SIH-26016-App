@@ -72,6 +72,7 @@ async function approve(req, res, next) {
     const approval = await approvalService.approve(req.params.id, {
       reviewer: req.user._id,
       reviewerName: req.user.name,
+      reviewerRole: req.user.role,
       remarks,
     });
 
@@ -126,6 +127,7 @@ async function reject(req, res, next) {
     const approval = await approvalService.reject(req.params.id, {
       reviewer: req.user._id,
       reviewerName: req.user.name,
+      reviewerRole: req.user.role,
       remarks,
     });
 
@@ -157,6 +159,7 @@ async function forward(req, res, next) {
     const result = await approvalService.forward(req.params.id, {
       reviewer: req.user._id,
       reviewerName: req.user.name,
+      reviewerRole: req.user.role,
       forwardedTo,
       forwardedToAuthority,
       remarks,

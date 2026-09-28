@@ -45,7 +45,7 @@ function _buildSearchOr(term, fields) {
  * @param {string} [opts.search]       Free-text search on requestId
  * @returns {Promise<{ approvals: object[], total: number, page: number, limit: number }>}
  */
-async function getQueue({ page = 1, limit = 10, action, district, state, search } = {}) {
+async function getQueue({ page = 1, limit = 10, action, district, state, search, authority, approvalLevel } = {}) {
   try {
     const pageNum = Math.max(1, parseInt(page, 10) || 1);
     const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10) || 10));
@@ -54,6 +54,13 @@ async function getQueue({ page = 1, limit = 10, action, district, state, search 
     const filter = {
       action: action || APPROVAL_ACTION.PENDING,
     };
+
+    if (authority) {
+      filter.authority = authority;
+    }
+    if (approvalLevel) {
+      filter.approvalLevel = Number(approvalLevel);
+    }
 
     if (search && search.trim()) {
       filter.$or = _buildSearchOr(search.trim(), ['requestId']);
@@ -209,7 +216,7 @@ async function createApproval({ requestId, landRecordId, verificationId, authori
  * @param {string} [opts.remarks]
  * @returns {Promise<object>}
  */
-async function approve(approvalId, { reviewer, reviewerName, remarks }) {
+async function approve(approvalId, { reviewer, reviewerName, reviewerRole, remarks } = {}) {
   try {
     const approval = await Approval.findById(approvalId);
     if (!approval) {
@@ -228,6 +235,23 @@ async function approve(approvalId, { reviewer, reviewerName, remarks }) {
       throw err;
     }
 
+    // Enforce Authority Authorization (P0 requirement 2)
+    const allowedRoleForLevel = {
+      1: 'DISTRICT_AUTHORITY',
+      2: 'STATE_AUTHORITY',
+      3: 'CENTRAL_AUTHORITY',
+    };
+    const requiredRole = allowedRoleForLevel[approval.approvalLevel] || approval.authority;
+
+    if (reviewerRole && reviewerRole !== 'SUPER_ADMIN' && reviewerRole !== requiredRole) {
+      const err = new Error(
+        `Unauthorized: Role ${reviewerRole} cannot act on ${requiredRole} approval (Level ${approval.approvalLevel}).`
+      );
+      err.statusCode = 403;
+      err.code = 'FORBIDDEN';
+      throw err;
+    }
+
     const landRecord = await LandRecord.findById(approval.landRecordId);
     if (!landRecord) {
       const err = new Error(`LandRecord not found for approval ${approvalId}`);
@@ -236,10 +260,27 @@ async function approve(approvalId, { reviewer, reviewerName, remarks }) {
       throw err;
     }
 
-    const previousStatus = landRecord.acquisitionStatus;
-    const newStatus = ACQUISITION_STATUS.APPROVED;
+    // Determine next status and forwarding chain
+    let newStatus;
+    let nextAuthority = null;
+    let nextLevel = null;
 
-    // Validates the PENDING_APPROVAL -> APPROVED transition
+    if (approval.approvalLevel === 1) {
+      // District Approval -> transitions to STATE_APPROVAL, forwards to State
+      newStatus = ACQUISITION_STATUS.STATE_APPROVAL;
+      nextAuthority = 'STATE_AUTHORITY';
+      nextLevel = 2;
+    } else if (approval.approvalLevel === 2) {
+      // State Approval -> transitions to CENTRAL_APPROVAL, forwards to Central
+      newStatus = ACQUISITION_STATUS.CENTRAL_APPROVAL;
+      nextAuthority = 'CENTRAL_AUTHORITY';
+      nextLevel = 3;
+    } else {
+      // Central Approval (Level 3) -> Final APPROVED
+      newStatus = ACQUISITION_STATUS.APPROVED;
+    }
+
+    const previousStatus = landRecord.acquisitionStatus;
     assertValidTransition(previousStatus, newStatus);
 
     const now = new Date();
@@ -247,6 +288,7 @@ async function approve(approvalId, { reviewer, reviewerName, remarks }) {
       approvalId: approval._id.toString(),
       requestId: approval.requestId,
       action: APPROVAL_ACTION.APPROVED,
+      level: approval.approvalLevel,
       timestamp: now.toISOString(),
     });
 
@@ -254,23 +296,40 @@ async function approve(approvalId, { reviewer, reviewerName, remarks }) {
     approval.reviewer = reviewer;
     approval.reviewerName = reviewerName;
     approval.reviewedAt = now;
-    approval.remarks = remarks || '';
+    approval.remarks = remarks || (approval.approvalLevel === 3 ? 'Final central approval granted' : `Approved at Level ${approval.approvalLevel} and forwarded to ${nextAuthority}`);
     approval.previousStatus = previousStatus;
     approval.newStatus = newStatus;
     approval.approvalHash = approvalHash;
 
     landRecord.acquisitionStatus = newStatus;
+    landRecord.currentAuthority = nextAuthority || 'CENTRAL_MINISTRY';
+    if (newStatus === ACQUISITION_STATUS.APPROVED) {
+      landRecord.compensationStatus = 'PENDING';
+    }
+
     landRecord.statusHistory.push({
       status: newStatus,
       changedBy: reviewer,
       changedAt: now,
-      remarks: remarks || 'Approved',
+      remarks: remarks || `Approved by ${approval.authority}`,
     });
 
     await Promise.all([approval.save(), landRecord.save()]);
 
-    logger.info('[approvalService.approve] Approval granted', {
+    // Automatically create next level approval if not final
+    if (nextAuthority && nextLevel) {
+      await createApproval({
+        requestId: approval.requestId,
+        landRecordId: approval.landRecordId,
+        verificationId: approval.verificationId,
+        authority: nextAuthority,
+        approvalLevel: nextLevel,
+      });
+    }
+
+    logger.info('[approvalService.approve] Approval processed', {
       approvalId,
+      level: approval.approvalLevel,
       requestId: approval.requestId,
       reviewer,
       previousStatus,
@@ -287,15 +346,8 @@ async function approve(approvalId, { reviewer, reviewerName, remarks }) {
 /**
  * Reject a pending approval and transition the associated LandRecord to REJECTED.
  * Remarks are mandatory for rejections.
- *
- * @param {string} approvalId
- * @param {object} opts
- * @param {string|mongoose.Types.ObjectId} opts.reviewer
- * @param {string} opts.reviewerName
- * @param {string} opts.remarks
- * @returns {Promise<object>}
  */
-async function reject(approvalId, { reviewer, reviewerName, remarks }) {
+async function reject(approvalId, { reviewer, reviewerName, reviewerRole, remarks } = {}) {
   try {
     if (!remarks || !remarks.trim()) {
       const err = new Error('Remarks are required when rejecting an approval.');
@@ -318,6 +370,22 @@ async function reject(approvalId, { reviewer, reviewerName, remarks }) {
       );
       err.statusCode = 409;
       err.code = 'APPROVAL_NOT_PENDING';
+      throw err;
+    }
+
+    const allowedRoleForLevel = {
+      1: 'DISTRICT_AUTHORITY',
+      2: 'STATE_AUTHORITY',
+      3: 'CENTRAL_AUTHORITY',
+    };
+    const requiredRole = allowedRoleForLevel[approval.approvalLevel] || approval.authority;
+
+    if (reviewerRole && reviewerRole !== 'SUPER_ADMIN' && reviewerRole !== requiredRole) {
+      const err = new Error(
+        `Unauthorized: Role ${reviewerRole} cannot reject ${requiredRole} approval (Level ${approval.approvalLevel}).`
+      );
+      err.statusCode = 403;
+      err.code = 'FORBIDDEN';
       throw err;
     }
 
@@ -378,17 +446,8 @@ async function reject(approvalId, { reviewer, reviewerName, remarks }) {
 
 /**
  * Forward an approval to a higher authority and create a new Approval for that level.
- *
- * @param {string} approvalId
- * @param {object} opts
- * @param {string|mongoose.Types.ObjectId} opts.reviewer
- * @param {string} opts.reviewerName
- * @param {string|mongoose.Types.ObjectId} opts.forwardedTo
- * @param {string} opts.forwardedToAuthority   e.g. 'STATE_AUTHORITY'
- * @param {string} [opts.remarks]
- * @returns {Promise<object>}  The newly created Approval for the next level
  */
-async function forward(approvalId, { reviewer, reviewerName, forwardedTo, forwardedToAuthority, remarks }) {
+async function forward(approvalId, { reviewer, reviewerName, reviewerRole, forwardedTo, forwardedToAuthority, remarks } = {}) {
   try {
     const approval = await Approval.findById(approvalId);
     if (!approval) {
@@ -407,31 +466,71 @@ async function forward(approvalId, { reviewer, reviewerName, forwardedTo, forwar
       throw err;
     }
 
-    const now = new Date();
+    const allowedRoleForLevel = {
+      1: 'DISTRICT_AUTHORITY',
+      2: 'STATE_AUTHORITY',
+      3: 'CENTRAL_AUTHORITY',
+    };
+    const requiredRole = allowedRoleForLevel[approval.approvalLevel] || approval.authority;
 
+    if (reviewerRole && reviewerRole !== 'SUPER_ADMIN' && reviewerRole !== requiredRole) {
+      const err = new Error(
+        `Unauthorized: Role ${reviewerRole} cannot act on ${requiredRole} approval (Level ${approval.approvalLevel}).`
+      );
+      err.statusCode = 403;
+      err.code = 'FORBIDDEN';
+      throw err;
+    }
+
+    const landRecord = await LandRecord.findById(approval.landRecordId);
+    if (!landRecord) {
+      const err = new Error(`LandRecord not found for approval ${approvalId}`);
+      err.statusCode = 404;
+      err.code = 'LAND_RECORD_NOT_FOUND';
+      throw err;
+    }
+
+    const targetAuthority = forwardedToAuthority || (approval.approvalLevel === 1 ? 'STATE_AUTHORITY' : 'CENTRAL_AUTHORITY');
+    const targetLevel = (approval.approvalLevel || 1) + 1;
+    const newStatus = targetLevel === 2 ? ACQUISITION_STATUS.STATE_APPROVAL : ACQUISITION_STATUS.CENTRAL_APPROVAL;
+
+    const previousStatus = landRecord.acquisitionStatus;
+    assertValidTransition(previousStatus, newStatus);
+
+    const now = new Date();
     approval.action = APPROVAL_ACTION.FORWARDED;
     approval.reviewer = reviewer;
     approval.reviewerName = reviewerName;
     approval.reviewedAt = now;
-    approval.remarks = remarks || '';
+    approval.remarks = remarks || `Forwarded to ${targetAuthority}`;
     approval.forwardedTo = forwardedTo;
-    approval.forwardedToAuthority = forwardedToAuthority;
+    approval.forwardedToAuthority = targetAuthority;
+    approval.previousStatus = previousStatus;
+    approval.newStatus = newStatus;
 
-    await approval.save();
+    landRecord.acquisitionStatus = newStatus;
+    landRecord.currentAuthority = targetAuthority;
+    landRecord.statusHistory.push({
+      status: newStatus,
+      changedBy: reviewer,
+      changedAt: now,
+      remarks: remarks || `Forwarded to ${targetAuthority}`,
+    });
 
-    // Create the next-level approval for the forwarded authority
+    await Promise.all([approval.save(), landRecord.save()]);
+
     const nextApproval = await createApproval({
       requestId: approval.requestId,
       landRecordId: approval.landRecordId,
       verificationId: approval.verificationId,
-      authority: forwardedToAuthority,
-      approvalLevel: (approval.approvalLevel || 1) + 1,
+      authority: targetAuthority,
+      approvalLevel: targetLevel,
     });
 
     logger.info('[approvalService.forward] Approval forwarded', {
       approvalId,
       requestId: approval.requestId,
-      forwardedToAuthority,
+      targetAuthority,
       newApprovalId: nextApproval._id,
     });
 

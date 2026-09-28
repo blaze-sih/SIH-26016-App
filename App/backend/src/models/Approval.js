@@ -86,12 +86,25 @@ const approvalSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   }
 );
+
+// ── Virtuals for backward compatibility ───────────────────────────────────────
+approvalSchema.virtual('status')
+  .get(function () { return this.action; })
+  .set(function (val) { this.action = val; });
+
+approvalSchema.virtual('level')
+  .get(function () { return this.approvalLevel; })
+  .set(function (val) { this.approvalLevel = val; });
 
 // ── Indexes ───────────────────────────────────────────────────────────────────
 approvalSchema.index({ requestId: 1, action: 1 });
 approvalSchema.index({ reviewer: 1, action: 1 });
+approvalSchema.index({ authority: 1, action: 1 });
+approvalSchema.index({ approvalLevel: 1, action: 1 });
 approvalSchema.index({ createdAt: -1 });
 
 module.exports = mongoose.model('Approval', approvalSchema);

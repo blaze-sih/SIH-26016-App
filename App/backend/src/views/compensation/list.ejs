@@ -1,0 +1,136 @@
+<!-- Compensation Management List View -->
+<div class="space-y-6">
+
+  <!-- Header Banner -->
+  <div class="bg-white p-6 rounded-xl border border-[#E7EDEF] shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div>
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-[#207E85]/10 text-[#207E85] border border-[#207E85]/20">Finance & Valuation</span>
+        <h1 class="text-xl font-bold font-mono tracking-tight text-[#1A2A42]">Compensation Payout Ledger</h1>
+      </div>
+      <p class="text-xs text-slate-500 mt-1">Direct benefit transfer (DBT/PFMS) monitoring, RFCTLARR solatium calculations, and immutable payment records.</p>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <a href="/land/requests" class="px-3.5 py-2 bg-white hover:bg-slate-50 border border-[#E7EDEF] text-slate-700 text-xs font-semibold rounded-lg shadow-sm transition">
+        ← Land Cases
+      </a>
+      <a href="/dashboard" class="px-3.5 py-2 bg-[#207E85] hover:bg-[#19656b] text-white text-xs font-semibold rounded-lg shadow-sm transition">
+        Dashboard
+      </a>
+    </div>
+  </div>
+
+  <!-- Metric KPI Cards (Dynamic Aggregation) -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="bg-white p-5 rounded-xl border border-[#E7EDEF] shadow-sm space-y-1">
+      <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Total Assessed</div>
+      <div class="text-xl font-mono font-bold text-[#1A2A42]">₹<%= (totalAssessed / 100000).toFixed(2) %> Lakh</div>
+      <div class="text-[11px] text-slate-400 font-mono">₹<%= totalAssessed.toLocaleString('en-IN') %></div>
+    </div>
+
+    <div class="bg-white p-5 rounded-xl border border-[#E7EDEF] shadow-sm space-y-1">
+      <div class="text-[11px] font-semibold text-emerald-600 uppercase tracking-wider">Total Disbursed (Paid)</div>
+      <div class="text-xl font-mono font-bold text-emerald-700">₹<%= (totalPaid / 100000).toFixed(2) %> Lakh</div>
+      <div class="text-[11px] text-slate-400 font-mono"><%= paidCount %> beneficiary payouts</div>
+    </div>
+
+    <div class="bg-white p-5 rounded-xl border border-[#E7EDEF] shadow-sm space-y-1">
+      <div class="text-[11px] font-semibold text-amber-600 uppercase tracking-wider">Pending Release</div>
+      <div class="text-xl font-mono font-bold text-amber-700"><%= pendingCount %></div>
+      <div class="text-[11px] text-slate-400">Awaiting finance sanction</div>
+    </div>
+
+    <div class="bg-white p-5 rounded-xl border border-[#E7EDEF] shadow-sm space-y-1">
+      <div class="text-[11px] font-semibold text-[#207E85] uppercase tracking-wider">Solatium Guarantee</div>
+      <div class="text-xl font-mono font-bold text-[#207E85]">100%</div>
+      <div class="text-[11px] text-slate-400">Section 30 RFCTLARR 2013</div>
+    </div>
+  </div>
+
+  <!-- Filter & Table -->
+  <div class="bg-white rounded-xl border border-[#E7EDEF] shadow-sm overflow-hidden">
+    <div class="p-4 border-b border-[#E7EDEF] flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#F8FAFB]">
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-bold text-[#1A2A42]">Filter Status:</span>
+        <a href="/compensation" class="px-2.5 py-1 text-xs rounded-lg font-medium <%= !filters.status ? 'bg-[#207E85] text-white' : 'bg-white text-slate-600 border border-[#E7EDEF]' %>">All</a>
+        <a href="/compensation?status=PAID" class="px-2.5 py-1 text-xs rounded-lg font-medium <%= filters.status === 'PAID' ? 'bg-emerald-600 text-white' : 'bg-white text-slate-600 border border-[#E7EDEF]' %>">Disbursed (PAID)</a>
+        <a href="/compensation?status=PENDING" class="px-2.5 py-1 text-xs rounded-lg font-medium <%= filters.status === 'PENDING' ? 'bg-amber-600 text-white' : 'bg-white text-slate-600 border border-[#E7EDEF]' %>">Pending</a>
+      </div>
+      <div class="text-xs text-slate-500">
+        Showing <strong><%= compensations.length %></strong> award records
+      </div>
+    </div>
+
+    <% if (compensations && compensations.length > 0) { %>
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs data-table">
+        <thead>
+          <tr>
+            <th>Request ID</th>
+            <th>Project / Location</th>
+            <th>Beneficiary</th>
+            <th>Assessed Award</th>
+            <th>Payment Status</th>
+            <th>Audit / Blockchain Ref</th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% compensations.forEach((c) => { 
+            const rec = c.landRecordId || {};
+          %>
+          <tr class="hover:bg-slate-50/70 transition">
+            <td class="font-mono font-bold text-[#207E85]">
+              <a href="/land/<%= rec.requestId || c.landRecordId %>" class="hover:underline">
+                <%= rec.requestId || c.landRecordId || '—' %>
+              </a>
+            </td>
+            <td>
+              <div class="font-medium text-[#1A2A42]"><%= rec.projectName || 'Infrastructure Project' %></div>
+              <div class="text-[11px] text-slate-400">Survey <%= rec.surveyNumber || '—' %> · <%= rec.village || rec.district || 'Maharashtra' %></div>
+            </td>
+            <td>
+              <div class="font-medium text-[#1A2A42]"><%= (rec.owners && rec.owners[0] && rec.owners[0].name) || rec.landOwner || 'Registered Land Owner' %></div>
+              <div class="text-[11px] text-slate-400 font-mono">Share: 1/1</div>
+            </td>
+            <td class="font-mono font-bold text-[#1A2A42]">
+              ₹<%= (c.approvedAmount || c.assessedAmount || 0).toLocaleString('en-IN') %>
+            </td>
+            <td>
+              <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold <%= c.paymentStatus === 'PAID' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800' %>">
+                <%= c.paymentStatus || 'PENDING' %>
+              </span>
+            </td>
+            <td class="font-mono text-[10px] text-slate-500">
+              <% if (c.blockchainTxHash) { %>
+                <div class="text-emerald-700 font-bold truncate max-w-[140px]" title="<%= c.blockchainTxHash %>">
+                  ✓ <%= c.blockchainTxHash.slice(0, 14) %>...
+                </div>
+                <div class="text-slate-400"><%= c.paidAt ? new Date(c.paidAt).toLocaleDateString('en-IN') : 'Disbursed' %></div>
+              <% } else { %>
+                <span class="text-slate-400">Payment pending</span>
+              <% } %>
+            </td>
+            <td class="text-right">
+              <a href="/land/<%= rec.requestId || c.landRecordId %>#compensation-section" class="px-3 py-1 bg-white hover:bg-slate-50 border border-[#E7EDEF] text-[#207E85] font-semibold rounded text-xs transition">
+                Manage Payout →
+              </a>
+            </td>
+          </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+    <% } else { %>
+    <div class="text-center py-12">
+      <svg class="mx-auto h-12 w-12 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      <h3 class="mt-2 text-sm font-semibold text-[#1A2A42]">No Compensation Records Found</h3>
+      <p class="mt-1 text-xs text-slate-500">Compensation records are created upon acquisition approval or Section 23 Award declaration.</p>
+    </div>
+    <% } %>
+  </div>
+
+</div>

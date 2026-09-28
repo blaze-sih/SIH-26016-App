@@ -401,6 +401,21 @@ async function processAIDocument(documentId) {
 
     await doc.save();
 
+    // Advance linked LandRecord lifecycle to PENDING_VERIFICATION
+    if (doc.landRecordId) {
+      const landRec = await LandRecord.findById(doc.landRecordId);
+      if (landRec && ['DRAFT', 'SUBMITTED', 'AI_PROCESSING'].includes(landRec.acquisitionStatus)) {
+        landRec.acquisitionStatus = ACQUISITION_STATUS.PENDING_VERIFICATION;
+        landRec.primaryDocumentId = doc._id;
+        landRec.statusHistory.push({
+          status: ACQUISITION_STATUS.PENDING_VERIFICATION,
+          changedAt: new Date(),
+          remarks: 'AI document extraction completed (Prototype Mode). Ready for Data Checker verification.',
+        });
+        await landRec.save();
+      }
+    }
+
     logger.info(`AI extraction completed for ${documentId}`, {
       status: doc.processingStatus,
       surveyConfidence: fields.surveyNumber.confidence,
@@ -409,10 +424,35 @@ async function processAIDocument(documentId) {
     return extraction;
   } catch (err) {
     doc.aiProcessingStatus = 'FAILED';
-    doc.processingStatus = DOCUMENT_PROCESSING_STATUS.UPLOADED;
+    doc.processingStatus = DOCUMENT_PROCESSING_STATUS.EXTRACTION_FAILED;
     await doc.save();
+
+    // Update LandRecord to AI_FAILED if linked
+    if (doc.landRecordId) {
+      const landRec = await LandRecord.findById(doc.landRecordId);
+      if (landRec && ['SUBMITTED', 'AI_PROCESSING'].includes(landRec.acquisitionStatus)) {
+        landRec.acquisitionStatus = ACQUISITION_STATUS.AI_FAILED;
+        landRec.statusHistory.push({
+          status: ACQUISITION_STATUS.AI_FAILED,
+          changedAt: new Date(),
+          remarks: 'AI extraction unavailable. Manual inspection required.',
+        });
+        await landRec.save();
+      }
+    }
+
+    const failedExtraction = new DocumentExtraction({
+      documentId: doc.documentId,
+      extractionVersion: doc.currentVersion,
+      modelName: 'manual-entry-mode',
+      status: 'FAILED',
+      fields: {},
+      rawResponse: { error: err.message, message: 'AI extraction unavailable. Switch to manual entry.' },
+    });
+    await failedExtraction.save();
+
     logger.error(`AI extraction failed for ${documentId}: ${err.message}`);
-    throw err;
+    return failedExtraction;
   }
 }
 

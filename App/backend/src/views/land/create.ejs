@@ -1,277 +1,323 @@
-<!-- Data Adder — New Property Request (Ref: PDF Page 6, 7, 8) -->
-<div class="space-y-5">
+<!-- Data Adder — New Land Acquisition Proposal Wizard -->
+<div class="space-y-6 max-w-5xl mx-auto">
 
-  <!-- Header -->
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+  <!-- Header Banner -->
+  <div class="bg-white p-6 rounded-xl border border-[#E7EDEF] shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
     <div>
-      <h1 class="text-xl font-bold tracking-tight text-[#1A2A42]">New Property Request</h1>
-      <p class="text-xs text-slate-500 mt-0.5">Register the source document, then run AI extraction before officer verification.</p>
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-mono font-bold px-2 py-0.5 rounded bg-[#207E85]/10 text-[#207E85] border border-[#207E85]/20">Stage 1 · Proposal</span>
+        <h1 class="text-xl font-bold font-mono tracking-tight text-[#1A2A42]">New Land Acquisition Proposal</h1>
+      </div>
+      <p class="text-xs text-slate-500 mt-1">Register acquisition proposal, cadastral boundaries, ownership details, and upload source 7/12 extract for automated AI extraction.</p>
     </div>
-    <div class="self-start sm:self-auto">
-      <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-mono font-semibold bg-white border border-[#E7EDEF] text-slate-600 shadow-sm">
-        Draft · REQ-20486
-      </span>
+
+    <div class="flex items-center gap-2">
+      <a href="/land/requests" class="px-3.5 py-2 bg-white hover:bg-slate-50 border border-[#E7EDEF] text-slate-700 text-xs font-semibold rounded-lg shadow-sm transition">
+        ← Cancel & Back
+      </a>
     </div>
   </div>
 
-  <!-- Main 2-Column Layout -->
-  <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-    
-    <!-- LEFT 7 COLS: Form & Document Upload -->
-    <div class="lg:col-span-7 space-y-5">
-      
-      <!-- Card 1: Record details -->
-      <div class="lrvs-card p-5 bg-white space-y-4">
+  <% if (typeof errors !== 'undefined' && errors.general) { %>
+    <div class="p-4 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl text-xs flex items-center gap-2">
+      <svg class="w-4 h-4 text-rose-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+      <span><%= errors.general %></span>
+    </div>
+  <% } %>
+
+  <!-- Multi-step Form Wizard Container -->
+  <form id="createLandForm" method="POST" action="/land/create" class="space-y-6">
+
+    <!-- Stepper Navigation Header -->
+    <div class="bg-white p-4 rounded-xl border border-[#E7EDEF] shadow-sm">
+      <div class="grid grid-cols-4 gap-2 text-center text-xs">
+        <div id="stepTab1" class="py-2 px-3 rounded-lg bg-[#207E85] text-white font-bold transition">
+          1. Project Details
+        </div>
+        <div id="stepTab2" class="py-2 px-3 rounded-lg bg-slate-100 text-slate-600 font-medium transition">
+          2. Cadastral & Area
+        </div>
+        <div id="stepTab3" class="py-2 px-3 rounded-lg bg-slate-100 text-slate-600 font-medium transition">
+          3. Ownership & R&R
+        </div>
+        <div id="stepTab4" class="py-2 px-3 rounded-lg bg-slate-100 text-slate-600 font-medium transition">
+          4. Documents & AI
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 1: Project Details -->
+    <div id="step1" class="bg-white p-6 rounded-xl border border-[#E7EDEF] shadow-sm space-y-4">
+      <h2 class="text-sm font-bold text-[#1A2A42] border-b border-[#E7EDEF] pb-2">
+        Step 1: Project Identification & Location
+      </h2>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
         <div>
-          <h2 class="text-sm font-bold text-[#1A2A42]">Record details</h2>
-          <p class="text-[11px] text-slate-400 mt-0.5">Fields marked * are required.</p>
+          <label class="block font-semibold text-slate-700 mb-1">Project Name *</label>
+          <input type="text" name="projectName" value="<%= (formData && formData.projectName) || 'Greenfield Expressway' %>" required
+                 class="w-full px-3 py-2 border border-[#E7EDEF] rounded-lg font-medium text-[#1A2A42] focus:ring-1 focus:ring-[#207E85] focus:outline-none" />
+          <p class="text-[10px] text-slate-400 mt-1">E.g., Greenfield Expressway, Industrial Corridor</p>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-          <div>
-            <label class="block font-semibold text-slate-700 mb-1">Registration Number *</label>
-            <input type="text" id="regNo" name="registrationNumber" value="MH-NSK-2024-03291"
-                   class="w-full px-3 py-2 border border-[#E7EDEF] rounded-lg bg-white text-[#1A2A42] font-mono focus:ring-1 focus:ring-[#207E85] focus:outline-none" />
-            <p class="text-[10px] text-slate-400 mt-1">State-District-Year-Sequence, e.g. MH-NSK-2024-03291</p>
-          </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Acquisition Purpose *</label>
+          <input type="text" name="acquisitionPurpose" value="<%= (formData && formData.acquisitionPurpose) || 'National Highway 4-Lane Expansion' %>" required
+                 class="w-full px-3 py-2 border border-[#E7EDEF] rounded-lg font-medium text-[#1A2A42] focus:ring-1 focus:ring-[#207E85] focus:outline-none" />
+        </div>
 
-          <div>
-            <label class="block font-semibold text-slate-700 mb-1">Serial Number *</label>
-            <input type="text" id="serialNo" name="serialNumber" value="SR-4471/2024"
-                   class="w-full px-3 py-2 border border-[#E7EDEF] rounded-lg bg-white text-[#1A2A42] font-mono focus:ring-1 focus:ring-[#207E85] focus:outline-none" />
-          </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">State *</label>
+          <select name="state" class="w-full px-3 py-2 border border-[#E7EDEF] rounded-lg text-[#1A2A42] focus:ring-1 focus:ring-[#207E85]">
+            <option value="Maharashtra" selected>Maharashtra</option>
+            <option value="Gujarat">Gujarat</option>
+            <option value="Karnataka">Karnataka</option>
+            <option value="Madhya Pradesh">Madhya Pradesh</option>
+          </select>
+        </div>
 
-          <div class="sm:col-span-2">
-            <label class="block font-semibold text-slate-700 mb-1">Source Document</label>
-            <div class="relative">
-              <select id="sourceDocSelect" name="documentType"
-                      class="w-full px-3 py-2 border border-[#E7EDEF] rounded-lg bg-white text-[#1A2A42] focus:ring-1 focus:ring-[#207E85] focus:outline-none appearance-none">
-                <option value="712_EXTRACT" selected>7/12 Extract (Satbara)</option>
-                <option value="FORM_8A">Form 8A — Holding Register</option>
-                <option value="SALE_DEED">Registered Sale Deed</option>
-                <option value="MUTATION_ENTRY">Mutation Entry (Ferfar)</option>
-              </select>
-              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-              </div>
-            </div>
-          </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">District *</label>
+          <input type="text" name="district" value="<%= (formData && formData.district) || 'Nashik' %>" required
+                 class="w-full px-3 py-2 border border-[#E7EDEF] rounded-lg text-[#1A2A42] focus:ring-1 focus:ring-[#207E85]" />
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Taluka / Tehsil *</label>
+          <input type="text" name="taluka" value="<%= (formData && formData.taluka) || 'Sinnar' %>" required
+                 class="w-full px-3 py-2 border border-[#E7EDEF] rounded-lg text-[#1A2A42] focus:ring-1 focus:ring-[#207E85]" />
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Village *</label>
+          <input type="text" name="village" value="<%= (formData && formData.village) || 'Sinnar' %>" required
+                 class="w-full px-3 py-2 border border-[#E7EDEF] rounded-lg text-[#1A2A42] focus:ring-1 focus:ring-[#207E85]" />
         </div>
       </div>
 
-      <!-- Card 2: Source document upload (Ref: PDF Page 6) -->
-      <div class="lrvs-card p-5 bg-white space-y-4">
+      <div class="flex justify-end pt-3">
+        <button type="button" onclick="goToStep(2)" class="px-5 py-2 bg-[#207E85] hover:bg-[#19656b] text-white text-xs font-semibold rounded-lg shadow-sm transition">
+          Next: Cadastral Specs →
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP 2: Cadastral Specs & Area -->
+    <div id="step2" class="hidden bg-white p-6 rounded-xl border border-[#E7EDEF] shadow-sm space-y-4">
+      <h2 class="text-sm font-bold text-[#1A2A42] border-b border-[#E7EDEF] pb-2">
+        Step 2: Cadastral Specifications & Geolocation
+      </h2>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
         <div>
-          <h2 class="text-sm font-bold text-[#1A2A42]">Source document</h2>
-          <p class="text-[11px] text-slate-400 mt-0.5">PDF, image (JPG/PNG) or DOC/DOCX · up to 20 MB</p>
+          <label class="block font-semibold text-slate-700 mb-1">Survey Number / Gut No *</label>
+          <input type="text" name="surveyNumber" value="<%= (formData && formData.surveyNumber) || '142/8' %>" required
+                 class="w-full px-3 py-2 border border-[#E7EDEF] rounded-lg font-mono font-bold text-[#1A2A42] focus:ring-1 focus:ring-[#207E85]" />
+          <p class="text-[10px] text-slate-400 mt-1">E.g., 142/8, 118/2A</p>
         </div>
 
-        <!-- Drag & Drop Zone -->
-        <div class="border-2 border-dashed border-[#C5E1E3] bg-[#F8FAFB] hover:bg-[#F3F8F9] rounded-xl p-8 text-center transition cursor-pointer"
-             onclick="document.getElementById('fileInput').click()">
-          <input type="file" id="fileInput" class="hidden" accept=".pdf,.png,.jpg,.jpeg" onchange="handleFileSelected(event)" />
-          <div class="w-10 h-10 rounded-full bg-[#E8F3F4] text-[#207E85] flex items-center justify-center mx-auto mb-2">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-          </div>
-          <p class="text-xs font-semibold text-[#1A2A42]">Drag and drop the source document here</p>
-          <p class="text-[11px] text-slate-400 mt-0.5">or browse from your device</p>
-          <button type="button" class="btn-outline mt-3 px-4 py-1.5 text-xs font-semibold">Choose file</button>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Sub-Division / Hissa</label>
+          <input type="text" name="subDivision" value="<%= (formData && formData.subDivision) || 'A' %>"
+                 class="w-full px-3 py-2 border border-[#E7EDEF] rounded-lg text-[#1A2A42] font-mono" />
         </div>
 
-        <!-- Uploaded File Item Preview -->
-        <div id="fileItem" class="p-3 rounded-lg border border-[#E7EDEF] bg-[#F8FAFB] flex items-center justify-between text-xs">
-          <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded bg-rose-50 text-rose-600 flex items-center justify-center font-bold text-[10px]">
-              PDF
-            </div>
-            <div>
-              <div id="fileNameDisplay" class="font-medium text-[#1A2A42]">7-12-extract-118-2A.pdf</div>
-              <div class="text-[11px] text-slate-400 flex items-center gap-1.5">
-                <span>1.8 MB · Upload complete</span>
-              </div>
-            </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Khata Number</label>
+          <input type="text" name="khataNumber" value="<%= (formData && formData.khataNumber) || 'KH-8821' %>"
+                 class="w-full px-3 py-2 border border-[#E7EDEF] rounded-lg text-[#1A2A42] font-mono" />
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Total Acquired Area *</label>
+          <input type="number" step="0.01" name="areaTotal" value="<%= (formData && formData.areaTotal) || '45.2' %>" required
+                 class="w-full px-3 py-2 border border-[#E7EDEF] rounded-lg font-mono font-bold text-[#1A2A42]" />
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Area Unit</label>
+          <select name="areaUnit" class="w-full px-3 py-2 border border-[#E7EDEF] rounded-lg text-[#1A2A42]">
+            <option value="Ha" selected>Hectares (Ha)</option>
+            <option value="Acre">Acres</option>
+            <option value="Sq.m">Square Meters</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Land Classification</label>
+          <select name="landType" class="w-full px-3 py-2 border border-[#E7EDEF] rounded-lg text-[#1A2A42]">
+            <option value="Agricultural" selected>Agricultural (Jirayat/Bagayat)</option>
+            <option value="Commercial">Commercial / Industrial</option>
+            <option value="Residential">Residential / Gaothan</option>
+            <option value="Barren">Barren / Waste Land</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Centroid Latitude</label>
+          <input type="text" name="latitude" value="<%= (formData && formData.latitude) || '19.8512' %>"
+                 class="w-full px-3 py-2 border border-[#E7EDEF] rounded-lg font-mono text-[#1A2A42]" />
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Centroid Longitude</label>
+          <input type="text" name="longitude" value="<%= (formData && formData.longitude) || '73.9921' %>"
+                 class="w-full px-3 py-2 border border-[#E7EDEF] rounded-lg font-mono text-[#1A2A42]" />
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Occupancy Class</label>
+          <input type="text" name="occupancyClass" value="Bhogvatdar Class 1"
+                 class="w-full px-3 py-2 border border-[#E7EDEF] rounded-lg text-[#1A2A42]" />
+        </div>
+      </div>
+
+      <div class="flex justify-between pt-3">
+        <button type="button" onclick="goToStep(1)" class="px-4 py-2 border border-[#E7EDEF] text-slate-700 text-xs font-semibold rounded-lg hover:bg-slate-50">
+          ← Back
+        </button>
+        <button type="button" onclick="goToStep(3)" class="px-5 py-2 bg-[#207E85] hover:bg-[#19656b] text-white text-xs font-semibold rounded-lg shadow-sm transition">
+          Next: Ownership & R&R →
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP 3: Ownership & R&R -->
+    <div id="step3" class="hidden bg-white p-6 rounded-xl border border-[#E7EDEF] shadow-sm space-y-4">
+      <h2 class="text-sm font-bold text-[#1A2A42] border-b border-[#E7EDEF] pb-2">
+        Step 3: Ownership Title & Socio-Economic (R&R)
+      </h2>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Primary Land Owner Name *</label>
+          <input type="text" name="landOwner" value="<%= (formData && formData.landOwner) || 'Ramesh Patil' %>" required
+                 class="w-full px-3 py-2 border border-[#E7EDEF] rounded-lg font-bold text-[#1A2A42] focus:ring-1 focus:ring-[#207E85]" />
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Father / Husband / Relative Name</label>
+          <input type="text" name="fatherName" value="Tukaram Patil"
+                 class="w-full px-3 py-2 border border-[#E7EDEF] rounded-lg text-[#1A2A42]" />
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Owner Contact Number</label>
+          <input type="text" name="contactNumber" value="9822012345"
+                 class="w-full px-3 py-2 border border-[#E7EDEF] rounded-lg font-mono text-[#1A2A42]" />
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Ownership Share</label>
+          <input type="text" name="share" value="1/1"
+                 class="w-full px-3 py-2 border border-[#E7EDEF] rounded-lg font-mono text-[#1A2A42]" />
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Affected Families (R&R Metric)</label>
+          <input type="number" name="affectedFamilies" value="1" min="0"
+                 class="w-full px-3 py-2 border border-[#E7EDEF] rounded-lg font-mono text-[#1A2A42]" />
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Displaced Families (Relocation Metric)</label>
+          <input type="number" name="displacedFamilies" value="0" min="0"
+                 class="w-full px-3 py-2 border border-[#E7EDEF] rounded-lg font-mono text-[#1A2A42]" />
+        </div>
+      </div>
+
+      <div class="flex justify-between pt-3">
+        <button type="button" onclick="goToStep(2)" class="px-4 py-2 border border-[#E7EDEF] text-slate-700 text-xs font-semibold rounded-lg hover:bg-slate-50">
+          ← Back
+        </button>
+        <button type="button" onclick="goToStep(4)" class="px-5 py-2 bg-[#207E85] hover:bg-[#19656b] text-white text-xs font-semibold rounded-lg shadow-sm transition">
+          Next: Documents & AI Extraction →
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP 4: Documents & AI Extraction -->
+    <div id="step4" class="hidden bg-white p-6 rounded-xl border border-[#E7EDEF] shadow-sm space-y-5">
+      <h2 class="text-sm font-bold text-[#1A2A42] border-b border-[#E7EDEF] pb-2">
+        Step 4: Title Deed Document & AI Verification Dispatch
+      </h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Source Document Type</label>
+            <select name="documentType" class="w-full px-3 py-2 border border-[#E7EDEF] rounded-lg text-xs text-[#1A2A42]">
+              <option value="712_EXTRACT" selected>7/12 Extract (Satbara Utara)</option>
+              <option value="SALE_DEED">Registered Sale Deed (Kharidkhat)</option>
+              <option value="MUTATION_ENTRY">Ferfar / Mutation Register</option>
+              <option value="FORM_8A">Form 8A — Holding Register</option>
+            </select>
           </div>
+
+          <!-- Document Upload Box -->
+          <div class="border-2 border-dashed border-[#C5E1E3] bg-[#F8FAFB] hover:bg-[#F3F8F9] rounded-xl p-6 text-center cursor-pointer transition"
+               onclick="document.getElementById('demoDocUpload').click()">
+            <input type="file" id="demoDocUpload" class="hidden" accept=".pdf,.jpg,.jpeg,.png" onchange="fileSelected(this)" />
+            <div class="w-10 h-10 rounded-full bg-[#E8F3F4] text-[#207E85] flex items-center justify-center mx-auto mb-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+            </div>
+            <p id="docUploadLabel" class="text-xs font-semibold text-[#1A2A42]">Click to attach 7/12 Extract PDF</p>
+            <p class="text-[11px] text-slate-400 mt-0.5">Sample PDF: 7_12_Extract_142_8_Nashik.pdf</p>
+          </div>
+        </div>
+
+        <!-- AI Engine Preview Box -->
+        <div class="p-4 bg-[#F0F9FF] border border-[#BAE6FD] rounded-xl space-y-3 text-xs">
           <div class="flex items-center gap-2">
-            <button type="button" class="text-slate-400 hover:text-slate-600 p-1" title="Refresh">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-            </button>
-            <button type="button" class="text-slate-400 hover:text-rose-600 p-1" title="Delete">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-            </button>
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span class="font-bold text-[#0369A1]">AI Extraction Engine (Prototype Mode)</span>
           </div>
-        </div>
-
-        <!-- File Ready status strip -->
-        <div class="flex items-center justify-between text-xs pt-1">
-          <div class="flex items-center gap-1.5 text-emerald-700 font-medium">
-            <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-            <span>Ready for processing</span>
-          </div>
-          <a href="/verification/queue" class="text-[#207E85] hover:underline font-medium">Preview document</a>
-        </div>
-      </div>
-
-      <!-- Lower Action Area (Ref: PDF Page 8) -->
-      <div class="flex items-center justify-end gap-3 pt-2">
-        <button type="button" class="btn-outline px-4 py-2 text-xs font-semibold">
-          Save Draft
-        </button>
-        <button type="button" onclick="triggerAIProcessing()"
-                class="btn-teal px-5 py-2 text-xs font-semibold flex items-center gap-2 shadow-sm">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-          <span>Process with AI</span>
-        </button>
-      </div>
-
-    </div>
-
-    <!-- RIGHT 5 COLS: AI Processing Status & Results -->
-    <div class="lg:col-span-5 space-y-4">
-      
-      <!-- Card: AI Processing -->
-      <div class="lrvs-card p-5 bg-white space-y-4">
-        <h2 class="text-sm font-bold text-[#1A2A42]">AI Processing</h2>
-
-        <!-- BEFORE AI PROCESSING STATE (Ref: PDF Page 6) -->
-        <div id="aiStateInitial" class="space-y-4">
-          <p class="text-xs text-slate-500 leading-relaxed">
-            Extraction has not started. All output is always reviewed by an officer before approval — nothing is published automatically.
+          <p class="text-[11px] text-[#0284C7] leading-relaxed">
+            Upon creation, the multi-language OCR pipeline parses village, survey number, area, and owner entries. If OCR detects an anomaly (such as 142/3 vs 142/8), it flags low confidence for human verification.
           </p>
-
-          <!-- SOP Info box -->
-          <div class="p-3 bg-[#F0F9FF] rounded-lg border border-[#BAE6FD] flex items-start gap-2 text-xs text-[#0369A1]">
-            <svg class="w-4 h-4 text-[#0284C7] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            <span class="text-[11px] leading-relaxed">
-              AI extraction assists the officer; it does not decide. Every field is verified against the source document in the Data Checker before a record can be approved.
-            </span>
-          </div>
-
-          <!-- Demo: Preview a failure path -->
-          <div class="p-4 bg-[#FFFBEB] rounded-xl border border-[#FDE68A] text-center space-y-2">
-            <div class="w-7 h-7 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center mx-auto">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-            </div>
-            <div class="font-bold text-xs text-amber-900">Preview a failure path</div>
-            <p class="text-[11px] text-amber-800 leading-snug">
-              Useful during the demo: run the pipeline and let normalisation fail.
-            </p>
-            <button type="button" onclick="simulateFailedExtraction()"
-                    class="btn-outline border-amber-300 text-amber-900 hover:bg-amber-100 text-[11px] px-3 py-1.5 rounded-lg font-semibold mt-1">
-              ✕ Simulate failed extraction
-            </button>
+          <div class="bg-white p-3 rounded-lg border border-[#BAE6FD] space-y-1 font-mono text-[11px] text-slate-600">
+            <div>✓ Extraction Engine: Multi-Lingual OCR (Marathi + English)</div>
+            <div>✓ Confidence Threshold: 75% Auto-Flag</div>
+            <div>✓ Security: SHA-256 Ledger Hash Anchor</div>
           </div>
         </div>
-
-        <!-- COMPLETED AI PROCESSING STATE (Ref: PDF Page 7 & 8) -->
-        <div id="aiStateCompleted" class="hidden space-y-4">
-          <!-- Progress info -->
-          <div class="flex items-center justify-between text-xs text-slate-500">
-            <span class="font-medium text-[#207E85]">Completed in 4.2s</span>
-            <span class="font-bold text-[#1A2A42]">100%</span>
-          </div>
-          <div class="w-full bg-[#E7EDEF] rounded-full h-1.5 overflow-hidden">
-            <div class="bg-[#207E85] h-1.5 rounded-full w-full"></div>
-          </div>
-
-          <!-- Extraction Steps -->
-          <div class="space-y-3 pt-2">
-            <div class="flex items-start gap-2.5 text-xs">
-              <div class="w-4 h-4 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-              </div>
-              <div>
-                <div class="font-bold text-[#1A2A42]">Extract Fields</div>
-                <div class="text-[11px] text-slate-400">Text and key fields pulled from source document</div>
-              </div>
-            </div>
-
-            <div class="flex items-start gap-2.5 text-xs">
-              <div class="w-4 h-4 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-              </div>
-              <div>
-                <div class="font-bold text-[#1A2A42]">Translate to English</div>
-                <div class="text-[11px] text-slate-400">Applied only when source language requires it</div>
-              </div>
-            </div>
-
-            <div class="flex items-start gap-2.5 text-xs">
-              <div class="w-4 h-4 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-              </div>
-              <div>
-                <div class="font-bold text-[#1A2A42]">Normalize Fields</div>
-                <div class="text-[11px] text-slate-400">Structured into a clean, consistent record</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- AI Result Box (Ref: PDF Page 7) -->
-          <div class="p-4 bg-[#F8FAFB] rounded-xl border border-[#E7EDEF] space-y-3">
-            <div class="flex items-center justify-between">
-              <div>
-                <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">AI RESULT</div>
-                <div class="text-base font-extrabold text-[#1A2A42]">32 fields extracted</div>
-              </div>
-              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#FEF3C7] text-[#92400E] border border-[#FDE68A]">
-                Ready for Check
-              </span>
-            </div>
-
-            <div class="grid grid-cols-2 gap-2 text-xs pt-1 border-t border-[#E7EDEF]">
-              <div>
-                <span class="text-slate-400 block text-[10px]">Source language</span>
-                <span class="font-medium text-[#1A2A42]">Marathi → English</span>
-              </div>
-              <div>
-                <span class="text-slate-400 block text-[10px]">Low-confidence fields</span>
-                <span class="font-bold text-slate-800">3</span>
-              </div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="space-y-2 pt-2">
-              <a href="/verification/queue" class="btn-teal w-full py-2.5 text-center text-xs block font-bold shadow-sm">
-                First Check Data →
-              </a>
-              <a href="/verification/queue" class="btn-outline w-full py-2 text-center text-xs block font-semibold text-slate-700">
-                Submit to Checker
-              </a>
-            </div>
-          </div>
-
-          <!-- SOP notice at bottom -->
-          <div class="p-3 bg-[#F0F9FF] rounded-lg border border-[#BAE6FD] flex items-start gap-2 text-xs text-[#0369A1]">
-            <svg class="w-4 h-4 text-[#0284C7] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            <span class="text-[11px] leading-relaxed">
-              AI extraction assists the officer; it does not decide. Every field is verified against the source document in the Data Checker before a record can be approved.
-            </span>
-          </div>
-        </div>
-
       </div>
 
+      <div class="flex items-center justify-between pt-4 border-t border-[#E7EDEF]">
+        <button type="button" onclick="goToStep(3)" class="px-4 py-2 border border-[#E7EDEF] text-slate-700 text-xs font-semibold rounded-lg hover:bg-slate-50">
+          ← Back
+        </button>
+        <button type="submit" class="px-6 py-2.5 bg-[#207E85] hover:bg-[#19656b] text-white text-xs font-bold rounded-lg shadow-md transition flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+          <span>Submit Acquisition Proposal & Initiate AI</span>
+        </button>
+      </div>
     </div>
 
-  </div>
+  </form>
 
 </div>
 
 <script>
-function handleFileSelected(event) {
-  const file = event.target.files[0];
-  if (file) {
-    document.getElementById('fileNameDisplay').textContent = file.name;
+function goToStep(stepNum) {
+  for (let i = 1; i <= 4; i++) {
+    const stepEl = document.getElementById('step' + i);
+    const tabEl = document.getElementById('stepTab' + i);
+    if (i === stepNum) {
+      stepEl.classList.remove('hidden');
+      tabEl.className = 'py-2 px-3 rounded-lg bg-[#207E85] text-white font-bold transition';
+    } else {
+      stepEl.classList.add('hidden');
+      tabEl.className = 'py-2 px-3 rounded-lg bg-slate-100 text-slate-600 font-medium transition cursor-pointer';
+      tabEl.onclick = () => goToStep(i);
+    }
   }
 }
 
-function triggerAIProcessing() {
-  document.getElementById('aiStateInitial').classList.add('hidden');
-  document.getElementById('aiStateCompleted').classList.remove('hidden');
-}
-
-function simulateFailedExtraction() {
-  alert('Simulated failure: OCR quality check failed due to low contrast on scan page 2. Record will require manual inspection in Data Checker.');
+function fileSelected(input) {
+  if (input.files && input.files[0]) {
+    document.getElementById('docUploadLabel').textContent = 'Attached: ' + input.files[0].name;
+    document.getElementById('docUploadLabel').className = 'text-xs font-bold text-emerald-700';
+  }
 }
 </script>
-

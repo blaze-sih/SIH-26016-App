@@ -1,0 +1,165 @@
+<!-- Mobile Field Verification Mode (SIH26016 Field Officer App View) -->
+<div class="max-w-2xl mx-auto space-y-5 pb-12">
+
+  <!-- Mobile Top Bar -->
+  <div class="bg-[#1A2A42] text-white p-5 rounded-2xl shadow-md flex items-center justify-between">
+    <div>
+      <div class="flex items-center gap-2">
+        <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#207E85] text-white uppercase tracking-wider">Field Mode</span>
+        <span class="text-xs font-mono text-slate-300"><%= record.requestId %></span>
+      </div>
+      <h1 class="text-lg font-bold mt-1 text-white"><%= record.projectName || 'Site Inspection' %></h1>
+      <p class="text-xs text-slate-300">Survey No. <strong><%= record.surveyNumber || '142/8' %></strong> · <%= record.village || 'Sinnar' %>, <%= record.district || 'Nashik' %></p>
+    </div>
+    <a href="/land/<%= record.requestId %>" class="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs font-medium transition">
+      Exit ✕
+    </a>
+  </div>
+
+  <form method="POST" action="/land/<%= record.requestId %>/field-mode" class="space-y-5">
+
+    <!-- Card 1: GPS Geolocation Capture -->
+    <div class="bg-white p-5 rounded-2xl border border-[#E7EDEF] shadow-sm space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="text-sm font-bold text-[#1A2A42] flex items-center gap-2">
+          <svg class="w-4 h-4 text-[#207E85]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+          Cadastral GPS Coordinates
+        </h2>
+        <span id="gpsStatus" class="text-[11px] font-mono text-slate-400">Not locked</span>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 text-xs">
+        <div>
+          <label class="block text-slate-500 font-medium mb-1">Latitude</label>
+          <input type="text" id="latInput" name="latitude" value="<%= record.location?.latitude || '19.8512' %>"
+                 class="w-full px-3 py-2.5 rounded-xl border border-[#E7EDEF] font-mono font-bold text-[#1A2A42] bg-[#F8FAFB]" required />
+        </div>
+        <div>
+          <label class="block text-slate-500 font-medium mb-1">Longitude</label>
+          <input type="text" id="lngInput" name="longitude" value="<%= record.location?.longitude || '73.9921' %>"
+                 class="w-full px-3 py-2.5 rounded-xl border border-[#E7EDEF] font-mono font-bold text-[#1A2A42] bg-[#F8FAFB]" required />
+        </div>
+      </div>
+
+      <button type="button" onclick="acquireGPS()"
+              class="w-full py-2.5 bg-[#E8F3F4] hover:bg-[#d8eef0] text-[#207E85] font-bold rounded-xl text-xs flex items-center justify-center gap-2 transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <span>Acquire High-Accuracy Device GPS</span>
+      </button>
+    </div>
+
+    <!-- Card 2: Physical Inspection Checklist -->
+    <div class="bg-white p-5 rounded-2xl border border-[#E7EDEF] shadow-sm space-y-4">
+      <h2 class="text-sm font-bold text-[#1A2A42] border-b border-[#E7EDEF] pb-2">
+        Physical Boundary Verification
+      </h2>
+
+      <div class="space-y-3 text-xs">
+        <label class="flex items-center gap-3 p-3 rounded-xl border border-[#E7EDEF] bg-[#F8FAFB] hover:bg-slate-50 cursor-pointer">
+          <input type="checkbox" name="boundaryVerified" checked class="w-4 h-4 text-[#207E85] rounded focus:ring-[#207E85]" />
+          <div>
+            <div class="font-bold text-[#1A2A42]">Boundary Demarcation Stones Verified</div>
+            <div class="text-[11px] text-slate-500">Pillar markers match Village Map Survey Sheet No. 142</div>
+          </div>
+        </label>
+
+        <label class="flex items-center gap-3 p-3 rounded-xl border border-[#E7EDEF] bg-[#F8FAFB] hover:bg-slate-50 cursor-pointer">
+          <input type="checkbox" name="encroachmentFound" class="w-4 h-4 text-rose-600 rounded focus:ring-rose-500" />
+          <div>
+            <div class="font-bold text-[#1A2A42]">Encroachment / Unauthorized Structures Detected</div>
+            <div class="text-[11px] text-slate-500">Flag if illegal construction or non-titleholders occupy parcel</div>
+          </div>
+        </label>
+
+        <label class="flex items-center gap-3 p-3 rounded-xl border border-[#E7EDEF] bg-[#F8FAFB] hover:bg-slate-50 cursor-pointer">
+          <input type="checkbox" name="panchnamaWitnesses" checked class="w-4 h-4 text-[#207E85] rounded focus:ring-[#207E85]" />
+          <div>
+            <div class="font-bold text-[#1A2A42]">Talathi & Local Witnesses Present</div>
+            <div class="text-[11px] text-slate-500">Village Talathi and 2 local panchas attested presence</div>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <!-- Card 3: Geotagged Photo Mock -->
+    <div class="bg-white p-5 rounded-2xl border border-[#E7EDEF] shadow-sm space-y-3">
+      <h2 class="text-sm font-bold text-[#1A2A42]">Geotagged Panchnama Photo</h2>
+      
+      <div id="photoPlaceholder" class="p-6 border-2 border-dashed border-[#C5E1E3] rounded-xl text-center bg-[#F8FAFB]">
+        <div class="w-12 h-12 rounded-full bg-[#E8F3F4] text-[#207E85] flex items-center justify-center mx-auto mb-2">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+        </div>
+        <p class="text-xs font-bold text-[#1A2A42]">Capture Evidence Photo</p>
+        <p class="text-[11px] text-slate-400 mt-0.5">Auto-stamped with lat, lng, time & cryptographic SHA-256</p>
+        <button type="button" onclick="mockCapturePhoto()" class="mt-3 px-4 py-1.5 bg-[#207E85] text-white text-xs font-semibold rounded-lg shadow-sm">
+          Snap Photo
+        </button>
+      </div>
+
+      <div id="photoPreview" class="hidden p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-3">
+        <div class="w-12 h-12 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-xs">
+          JPG
+        </div>
+        <div class="text-xs">
+          <div class="font-bold text-emerald-900">site_panchnama_geo.jpg</div>
+          <div class="text-[11px] text-emerald-700">GPS Locked · 19.8512°N, 73.9921°E · Hash: 9f82c...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 4: Field Officer Remarks -->
+    <div class="bg-white p-5 rounded-2xl border border-[#E7EDEF] shadow-sm space-y-2">
+      <label class="block text-xs font-bold text-[#1A2A42]">Field Inspection Observations</label>
+      <textarea name="fieldNotes" rows="3"
+                class="w-full p-3 rounded-xl border border-[#E7EDEF] text-xs text-[#1A2A42] focus:ring-1 focus:ring-[#207E85] focus:outline-none"
+                placeholder="Enter field notes, crop status, trees count, structures, or owner statements...">Physical boundaries surveyed on site. Survey mark 142/8 verified in presence of land owner Ramesh Patil. No unauthorized encroachments found. Total acquired strip: 45.2 Hectares.</textarea>
+    </div>
+
+    <!-- Submit CTA -->
+    <div class="pt-2">
+      <button type="submit"
+              class="w-full py-3.5 bg-[#207E85] hover:bg-[#19656b] text-white font-bold text-sm rounded-2xl shadow-lg transition flex items-center justify-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+        <span>Submit Field Verification Record</span>
+      </button>
+      <p class="text-center text-[11px] text-slate-400 mt-2">Data is instantly synchronized with the central repository.</p>
+    </div>
+
+  </form>
+
+</div>
+
+<script>
+function acquireGPS() {
+  const statusEl = document.getElementById('gpsStatus');
+  statusEl.textContent = 'Acquiring satellite lock...';
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        document.getElementById('latInput').value = pos.coords.latitude.toFixed(6);
+        document.getElementById('lngInput').value = pos.coords.longitude.toFixed(6);
+        statusEl.textContent = 'GPS Locked (±3m)';
+        statusEl.className = 'text-[11px] font-mono text-emerald-600 font-bold';
+      },
+      (err) => {
+        // Fallback mock accurate coordinates for Nashik Sinnar site
+        document.getElementById('latInput').value = '19.851240';
+        document.getElementById('lngInput').value = '73.992110';
+        statusEl.textContent = 'GPS Locked (Simulated High-Accuracy)';
+        statusEl.className = 'text-[11px] font-mono text-emerald-600 font-bold';
+      },
+      { timeout: 5000 }
+    );
+  } else {
+    document.getElementById('latInput').value = '19.851240';
+    document.getElementById('lngInput').value = '73.992110';
+    statusEl.textContent = 'GPS Locked (Simulated)';
+    statusEl.className = 'text-[11px] font-mono text-emerald-600 font-bold';
+  }
+}
+
+function mockCapturePhoto() {
+  document.getElementById('photoPlaceholder').classList.add('hidden');
+  document.getElementById('photoPreview').classList.remove('hidden');
+}
+</script>

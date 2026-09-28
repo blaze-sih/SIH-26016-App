@@ -74,6 +74,12 @@ function _buildMatchStage(filters = {}) {
 async function getSummary(filters = {}) {
   const match = _buildMatchStage(filters);
 
+  let compMatch = {};
+  if (Object.keys(match).length > 0) {
+    const matchingIds = await LandRecord.find(match).distinct('_id');
+    compMatch = { landRecordId: { $in: matchingIds } };
+  }
+
   const [landAgg, compAgg] = await Promise.all([
     LandRecord.aggregate([
       { $match: match },
@@ -139,6 +145,7 @@ async function getSummary(filters = {}) {
       },
     ]),
     Compensation.aggregate([
+      ...(Object.keys(compMatch).length > 0 ? [{ $match: compMatch }] : []),
       {
         $facet: {
           compensationAssessed: [
@@ -268,12 +275,20 @@ async function getStateWise() {
 /**
  * Aggregate LandRecord statistics grouped by district, optionally filtered by state.
  *
- * @param {string} [state]
+ * @param {string|object} [stateOrFilters]
  * @returns {Promise<Array<{ district: string, total: number, byStatus: object }>>}
  */
-async function getDistrictWise(state) {
+async function getDistrictWise(stateOrFilters) {
   const match = {};
-  if (state) match.state = state;
+  let state = null;
+  if (typeof stateOrFilters === 'string') {
+    state = stateOrFilters;
+  } else if (stateOrFilters && typeof stateOrFilters === 'object') {
+    state = stateOrFilters.state || null;
+    if (stateOrFilters.district) match.district = stateOrFilters.district;
+  }
+
+  if (state && state !== 'All') match.state = state;
 
   const allStatuses = Object.values(S);
 

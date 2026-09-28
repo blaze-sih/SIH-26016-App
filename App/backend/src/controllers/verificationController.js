@@ -141,7 +141,7 @@ async function markVerified(req, res, next) {
       req,
     });
 
-    // After verification, create approval record
+    // After verification, create Level 1 approval for District Authority
     try {
       const approvalService = require('../services/approvalService');
       const landService = require('../services/landService');
@@ -150,14 +150,14 @@ async function markVerified(req, res, next) {
         requestId: req.params.requestId,
         landRecordId: landRecord._id,
         verificationId: verification._id,
-        authority: req.user.role,
+        authority: 'DISTRICT_AUTHORITY',
         approvalLevel: 1,
       });
       await landService.transitionStatus(
         req.params.requestId,
-        'PENDING_APPROVAL',
+        ACQUISITION_STATUS.DISTRICT_APPROVAL,
         req.user._id,
-        'Verification completed, pending approval'
+        'Verification completed, forwarded to District Authority'
       );
     } catch (approvalErr) {
       logger.error('Failed to create approval after verification', { error: approvalErr.message });

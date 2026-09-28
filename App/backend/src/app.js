@@ -128,11 +128,12 @@ app.use(
   })
 );
 
-// ── Static file serving for uploaded documents ──────────────────────────────
-app.use(
-  '/uploads',
-  express.static(path.join(__dirname, '../../', process.env.UPLOAD_DIR || 'uploads'))
-);
+// ── Secure document downloads (Section 7: No public static /uploads) ────────
+// All document downloads must pass through authenticated authorization.
+// Direct /uploads access is blocked; documents stream via /api/documents/:documentId/file.
+app.use('/uploads', (_req, res) => {
+  return res.status(403).json(error('Direct access to uploads directory is forbidden. Use authenticated document endpoints.', { code: 'FORBIDDEN' }, 403));
+});
 
 // ── Health endpoint ──────────────────────────────────────────────────────────
 app.get('/api/health', (_req, res) => {
