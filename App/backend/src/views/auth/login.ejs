@@ -171,22 +171,38 @@
       </form>
 
       <!-- Quick Demo Account Fillers for Evaluation Convenience -->
-      <div class="mt-8 pt-6 border-t border-[#E2E8F0]">
-        <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2.5 text-center">
-          Quick Demo Login (Password: Pass@1234)
+      <div class="mt-6 pt-5 border-t border-[#E2E8F0]">
+        <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-3 text-center">
+          Demo Accounts — Password: Pass@1234
         </div>
-        <div class="flex flex-wrap items-center justify-center gap-1.5 text-xs">
-          <button type="button" onclick="fillDemo('CENTRAL-001')" class="px-2.5 py-1 bg-white border border-[#E2E8F0] hover:border-[#207E85] hover:text-[#207E85] rounded-md font-medium text-slate-600 transition-colors shadow-2xs">
-            Central Ministry
+        <div class="grid grid-cols-2 gap-1.5">
+          <button type="button" onclick="fillDemo('CENTRAL-001')" class="flex items-center gap-2 px-2.5 py-2 bg-white border border-[#E2E8F0] hover:border-[#207E85] hover:bg-[#F3F8F9] rounded-lg text-xs text-slate-700 font-medium transition-all text-left">
+            <span class="w-2 h-2 rounded-full bg-indigo-500 flex-shrink-0"></span>
+            <span>Central Ministry</span>
           </button>
-          <button type="button" onclick="fillDemo('STATE-001')" class="px-2.5 py-1 bg-white border border-[#E2E8F0] hover:border-[#207E85] hover:text-[#207E85] rounded-md font-medium text-slate-600 transition-colors shadow-2xs">
-            State Govt
+          <button type="button" onclick="fillDemo('STATE-001')" class="flex items-center gap-2 px-2.5 py-2 bg-white border border-[#E2E8F0] hover:border-[#207E85] hover:bg-[#F3F8F9] rounded-lg text-xs text-slate-700 font-medium transition-all text-left">
+            <span class="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0"></span>
+            <span>State Government</span>
           </button>
-          <button type="button" onclick="fillDemo('DIST-001')" class="px-2.5 py-1 bg-white border border-[#E2E8F0] hover:border-[#207E85] hover:text-[#207E85] rounded-md font-medium text-slate-600 transition-colors shadow-2xs">
-            District Authority
+          <button type="button" onclick="fillDemo('DIST-001')" class="flex items-center gap-2 px-2.5 py-2 bg-white border border-[#E2E8F0] hover:border-[#207E85] hover:bg-[#F3F8F9] rounded-lg text-xs text-slate-700 font-medium transition-all text-left">
+            <span class="w-2 h-2 rounded-full bg-sky-500 flex-shrink-0"></span>
+            <span>District Authority</span>
           </button>
-          <button type="button" onclick="fillDemo('SUPER-001')" class="px-2.5 py-1 bg-white border border-[#E2E8F0] hover:border-[#207E85] hover:text-[#207E85] rounded-md font-medium text-slate-600 transition-colors shadow-2xs">
-            Super Admin
+          <button type="button" onclick="fillDemo('VERIF-001')" class="flex items-center gap-2 px-2.5 py-2 bg-white border border-[#E2E8F0] hover:border-[#207E85] hover:bg-[#F3F8F9] rounded-lg text-xs text-slate-700 font-medium transition-all text-left">
+            <span class="w-2 h-2 rounded-full bg-violet-500 flex-shrink-0"></span>
+            <span>Verification Officer</span>
+          </button>
+          <button type="button" onclick="fillDemo('PROJ-001')" class="flex items-center gap-2 px-2.5 py-2 bg-white border border-[#E2E8F0] hover:border-[#207E85] hover:bg-[#F3F8F9] rounded-lg text-xs text-slate-700 font-medium transition-all text-left">
+            <span class="w-2 h-2 rounded-full bg-amber-500 flex-shrink-0"></span>
+            <span>Approval Officer</span>
+          </button>
+          <button type="button" onclick="fillDemo('FIN-001')" class="flex items-center gap-2 px-2.5 py-2 bg-white border border-[#E2E8F0] hover:border-[#207E85] hover:bg-[#F3F8F9] rounded-lg text-xs text-slate-700 font-medium transition-all text-left">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0"></span>
+            <span>Finance Officer</span>
+          </button>
+          <button type="button" onclick="fillDemo('LAND-001')" class="col-span-2 flex items-center gap-2 px-2.5 py-2 bg-[#F3F8F9] border border-[#207E85]/30 hover:border-[#207E85] hover:bg-[#E8F3F4] rounded-lg text-xs text-[#207E85] font-semibold transition-all text-left">
+            <span class="w-2 h-2 rounded-full bg-[#207E85] flex-shrink-0"></span>
+            <span>Land Owner (Ramesh Patil)</span>
           </button>
         </div>
       </div>

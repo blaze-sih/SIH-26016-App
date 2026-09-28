@@ -245,95 +245,66 @@
           </div>
         </div>
         <!-- Status / Confidence Chip -->
+        <% const overallConf = extraction && extraction.fields && extraction.fields.surveyNumber ? extraction.fields.surveyNumber.confidence : 0.92; %>
         <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#E8F3F4] text-[#207E85] border border-[#C5E1E3]">
           <span class="w-1.5 h-1.5 rounded-full bg-[#207E85]"></span>
-          <span>AI Extraction Complete · Confidence: 92%</span>
+          <span>AI Extraction Complete · Confidence: <%= Math.round(overallConf * 100) %>%</span>
         </span>
       </div>
 
       <!-- Extracted Fields Grid (Scrollable) -->
       <div class="flex-1 overflow-y-auto p-4 space-y-4 bg-white">
         
-        <form id="aiFieldsForm" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-xs">
-          
-          <!-- 1. Village / City -->
-          <div>
-            <label class="block font-semibold text-slate-600 mb-1">Village / City</label>
-            <input type="text" id="field_village" name="village" value="<%= record.village || 'Nashik' %>"
-                   class="w-full px-3 py-2 border border-[#E7EDEF] rounded-lg bg-[#F8FAFB] text-[#1A2A42] font-medium focus:bg-white focus:ring-1 focus:ring-[#207E85] focus:outline-none" />
+        <form id="aiFieldsForm" class="grid grid-cols-1 gap-3 text-xs">
+          <% 
+            const extractionFields = [
+              { key: 'village', label: 'Village / City', fallback: record.village || 'Nashik' },
+              { key: 'district', label: 'District', fallback: record.district || 'Nashik' },
+              { key: 'taluka', label: 'Taluka', fallback: record.taluka || 'Nashik' },
+              { key: 'surveyNumber', label: 'Survey Number', fallback: record.surveyNumber || '78/3' },
+              { key: 'ownerName', label: 'Owner Name', fallback: (record.owners && record.owners[0] ? record.owners[0].name : '') || 'Ramchandra Vitthal Patil' },
+              { key: 'landArea', label: 'Area (Sq. Mtrs)', fallback: (record.area && record.area.total) || '4000' }
+            ];
+            extractionFields.forEach(f => {
+              const extField = extraction && extraction.fields && extraction.fields[f.key] ? extraction.fields[f.key] : null;
+              const aiValue = extField && extField.value != null ? extField.value : f.fallback;
+              const confidence = extField ? extField.confidence : 0.95;
+              let confColor = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+              let confDot = 'bg-emerald-500';
+              if (confidence < 0.60) {
+                confColor = 'bg-rose-50 text-rose-700 border-rose-200';
+                confDot = 'bg-rose-500';
+              } else if (confidence < 0.85) {
+                confColor = 'bg-amber-50 text-amber-700 border-amber-200';
+                confDot = 'bg-amber-500';
+              }
+          %>
+          <div class="border border-[#E7EDEF] rounded-lg p-3 bg-[#F8FAFB]">
+            <div class="flex items-center justify-between mb-2">
+              <label class="font-semibold text-slate-700"><%= f.label %></label>
+              <% if (extField) { %>
+              <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium border <%= confColor %>" title="Confidence Score">
+                <span class="w-1.5 h-1.5 rounded-full <%= confDot %>"></span>
+                <%= Math.round(confidence * 100) %>%
+              </span>
+              <% } %>
+            </div>
+            <div class="flex items-center gap-2">
+              <input type="text" id="field_<%= f.key %>" name="<%= f.key %>" value="<%= aiValue %>"
+                     class="flex-1 px-3 py-2 border border-[#E7EDEF] rounded bg-white text-[#1A2A42] font-medium focus:ring-1 focus:ring-[#207E85] focus:outline-none" />
+              <button type="button" onclick="saveCorrection('<%= f.key %>')" 
+                      class="px-3 py-2 bg-white border border-[#E7EDEF] rounded text-xs font-semibold text-slate-600 hover:bg-slate-50 transition shadow-sm">
+                Save
+              </button>
+            </div>
+            <% if (extField && extField.isLowConfidence) { %>
+            <p class="text-[10px] text-rose-500 mt-1 flex items-center gap-1">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+              Low confidence extraction. Please verify manually.
+            </p>
+            <% } %>
           </div>
-
-          <!-- 2. Taluka -->
-          <div>
-            <label class="block font-semibold text-slate-600 mb-1">Taluka</label>
-            <input type="text" id="field_taluka" name="taluka" value="<%= record.taluka || 'Nashik' %>"
-                   class="w-full px-3 py-2 border border-[#E7EDEF] rounded-lg bg-[#F8FAFB] text-[#1A2A42] font-medium focus:bg-white focus:ring-1 focus:ring-[#207E85] focus:outline-none" />
-          </div>
-
-          <!-- 3. Survey Number -->
-          <div>
-            <label class="block font-semibold text-slate-600 mb-1">Survey Number</label>
-            <input type="text" id="field_surveyNumber" name="surveyNumber" value="<%= record.surveyNumber || '78/3' %>"
-                   class="w-full px-3 py-2 border border-[#E7EDEF] rounded-lg bg-[#F8FAFB] text-[#1A2A42] font-mono font-bold focus:bg-white focus:ring-1 focus:ring-[#207E85] focus:outline-none" />
-          </div>
-
-          <!-- 4. District -->
-          <div>
-            <label class="block font-semibold text-slate-600 mb-1">District</label>
-            <input type="text" id="field_district" name="district" value="<%= record.district || 'Nashik' %>"
-                   class="w-full px-3 py-2 border border-[#E7EDEF] rounded-lg bg-[#F8FAFB] text-[#1A2A42] font-medium focus:bg-white focus:ring-1 focus:ring-[#207E85] focus:outline-none" />
-          </div>
-
-          <!-- 5. Owner Name -->
-          <div>
-            <label class="block font-semibold text-slate-600 mb-1">Owner Name</label>
-            <% const primaryOwner = (record.owners && record.owners[0] ? record.owners[0].name : '') || 'Ramchandra Vitthal Patil'; %>
-            <input type="text" id="field_ownerName" name="ownerName" value="<%= primaryOwner %>"
-                   class="w-full px-3 py-2 border border-[#E7EDEF] rounded-lg bg-[#F8FAFB] text-[#1A2A42] font-semibold focus:bg-white focus:ring-1 focus:ring-[#207E85] focus:outline-none" />
-          </div>
-
-          <!-- 6. Hissa Number -->
-          <div>
-            <label class="block font-semibold text-slate-600 mb-1">Hissa Number</label>
-            <input type="text" id="field_hissa" name="subDivision" value="<%= record.subDivision || '-' %>"
-                   class="w-full px-3 py-2 border border-[#E7EDEF] rounded-lg bg-[#F8FAFB] text-[#1A2A42] font-mono focus:bg-white focus:ring-1 focus:ring-[#207E85] focus:outline-none" />
-          </div>
-
-          <!-- 7. Area (Sq. Mtrs / Hectare) -->
-          <div>
-            <label class="block font-semibold text-slate-600 mb-1">Area (Sq. Mtrs)</label>
-            <input type="text" id="field_area" name="area" value="<%= (record.area && record.area.total) || '4000' %>"
-                   class="w-full px-3 py-2 border border-[#E7EDEF] rounded-lg bg-[#F8FAFB] text-[#1A2A42] font-mono font-semibold focus:bg-white focus:ring-1 focus:ring-[#207E85] focus:outline-none" />
-          </div>
-
-          <!-- 8. Land Type -->
-          <div>
-            <label class="block font-semibold text-slate-600 mb-1">Land Type</label>
-            <input type="text" id="field_landType" name="landType" value="<%= record.landType || 'Jirayat' %>"
-                   class="w-full px-3 py-2 border border-[#E7EDEF] rounded-lg bg-[#F8FAFB] text-[#1A2A42] font-medium focus:bg-white focus:ring-1 focus:ring-[#207E85] focus:outline-none" />
-          </div>
-
-          <!-- 9. Document Type -->
-          <div>
-            <label class="block font-semibold text-slate-600 mb-1">Document Type</label>
-            <input type="text" id="field_docType" name="docType" value="<%= (documents && documents[0] && documents[0].documentType) ? documents[0].documentType.replace(/_/g, ' ') : '7/12 Extract' %>"
-                   class="w-full px-3 py-2 border border-[#E7EDEF] rounded-lg bg-[#F8FAFB] text-[#1A2A42] font-medium focus:bg-white focus:ring-1 focus:ring-[#207E85] focus:outline-none" />
-          </div>
-
-          <!-- 10. Document Year -->
-          <div>
-            <label class="block font-semibold text-slate-600 mb-1">Document Year</label>
-            <input type="text" id="field_docYear" name="docYear" value="<%= record.createdAt ? new Date(record.createdAt).getFullYear() : '2024' %>"
-                   class="w-full px-3 py-2 border border-[#E7EDEF] rounded-lg bg-[#F8FAFB] text-[#1A2A42] font-mono focus:bg-white focus:ring-1 focus:ring-[#207E85] focus:outline-none" />
-          </div>
-
-          <!-- 11. Remarks (Full Width) -->
-          <div class="sm:col-span-2">
-            <label class="block font-semibold text-slate-600 mb-1">Remarks (if any)</label>
-            <input type="text" id="field_remarks" name="remarks" value="<%= record.encumbrances || '-' %>"
-                   class="w-full px-3 py-2 border border-[#E7EDEF] rounded-lg bg-[#F8FAFB] text-[#1A2A42] focus:bg-white focus:ring-1 focus:ring-[#207E85] focus:outline-none" />
-          </div>
-
+          <% }); %>
         </form>
 
         <!-- Official verification instruction banner (Ref: PDF Page 19) -->
@@ -425,8 +396,35 @@ function closeIncompleteModal() {
   document.getElementById('incompleteModal').classList.add('hidden');
 }
 
+async function saveCorrection(field) {
+  const correctedValue = document.getElementById('field_' + field).value;
+  const documentId = '<%= primaryDoc ? primaryDoc.documentId : "" %>';
+  if (!documentId) return alert('No document found to correct.');
+  
+  const alertEl = document.getElementById('actionAlert');
+  alertEl.classList.remove('hidden');
+  try {
+    const res = await fetch(`/api/documents/${documentId}/corrections`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ field, correctedValue, reason: 'Officer correction' })
+    });
+    if (res.ok) {
+      alertEl.className = 'p-3 rounded-lg text-xs font-medium bg-emerald-50 text-emerald-800 border border-emerald-200 block mb-4';
+      alertEl.textContent = `✓ Field '${field}' corrected successfully.`;
+      setTimeout(() => alertEl.className = 'hidden', 3000);
+    } else {
+      const data = await res.json();
+      alert(data.message || 'Failed to save correction.');
+    }
+  } catch(err) {
+    alert('Network error: ' + err.message);
+  }
+}
+
 async function submitVerification(action) {
   const alertEl = document.getElementById('actionAlert');
+  alertEl.classList.remove('hidden');
   let remarks = '';
 
   if (action === 'INCOMPLETE') {
@@ -454,7 +452,7 @@ async function submitVerification(action) {
     const data = await res.json();
 
     if (res.ok) {
-      alertEl.className = 'p-3 rounded-lg text-xs font-medium bg-emerald-50 text-emerald-800 border border-emerald-200 block';
+      alertEl.className = 'p-3 rounded-lg text-xs font-medium bg-emerald-50 text-emerald-800 border border-emerald-200 block mb-4';
       alertEl.textContent = action === 'VERIFIED' 
         ? '✓ Record marked as Verified! Forwarded to Approval Pipeline. Redirecting...'
         : '✓ Record marked as Incomplete. Requester notified for re-submission. Redirecting...';
@@ -462,11 +460,11 @@ async function submitVerification(action) {
         window.location.href = '/verification/queue';
       }, 1200);
     } else {
-      alertEl.className = 'p-3 rounded-lg text-xs font-medium bg-rose-50 text-rose-800 border border-rose-200 block';
+      alertEl.className = 'p-3 rounded-lg text-xs font-medium bg-rose-50 text-rose-800 border border-rose-200 block mb-4';
       alertEl.textContent = data.message || 'Action failed.';
     }
   } catch (err) {
-    alertEl.className = 'p-3 rounded-lg text-xs font-medium bg-rose-50 text-rose-800 border border-rose-200 block';
+    alertEl.className = 'p-3 rounded-lg text-xs font-medium bg-rose-50 text-rose-800 border border-rose-200 block mb-4';
     alertEl.textContent = 'Network error: ' + err.message;
   }
 }

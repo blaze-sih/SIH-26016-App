@@ -589,13 +589,16 @@ async function verificationDetail(req, res, next) {
       });
     }
 
+    const Document = require('../models/Document');
+    const DocumentExtraction = require('../models/DocumentExtraction');
+
     const [verification, documents, processingJob] = await Promise.all([
       safeCall(
         () => require('../models/Verification').findOne({ landRecordId: record._id }).sort({ createdAt: -1 }).lean(),
         null
       ),
       safeCall(
-        () => require('../models/Document').find({ landRecordId: record._id }).lean(),
+        () => Document.find({ landRecordId: record._id }).lean(),
         []
       ),
       safeCall(
@@ -604,12 +607,24 @@ async function verificationDetail(req, res, next) {
       ),
     ]);
 
+    const primaryDoc = await safeCall(
+      () => Document.findOne({ landParcelId: record.requestId, isDeleted: { $ne: true } }).lean(),
+      documents && documents.length > 0 ? documents[0] : null
+    );
+
+    const extraction = primaryDoc ? await safeCall(
+      () => DocumentExtraction.findOne({ documentId: primaryDoc.documentId }).sort({ createdAt: -1 }).lean(),
+      null
+    ) : null;
+
     res.render('verification/detail', {
       title: `Check Data — ${record.requestId}`,
       breadcrumb: { parent: 'Processes › Data Checker', current: 'Check Data' },
       record,
       verification,
       documents: documents || [],
+      primaryDoc,
+      extraction,
       processingJob,
       currentUser: req.user,
     });
@@ -782,6 +797,117 @@ async function auditLog(req, res, next) {
   }
 }
 
+// ── Land Owner: Land Records ───────────────────────────────────────────────────
+async function landOwnerLandRecords(req, res, next) {
+  try {
+    const userId = req.user.userId; // e.g. 'LAND-001'
+    const records = await safeCall(
+      () => LandRecord.find({ $or: [{ landOwnerUserId: req.user._id }, { 'owners.0': { $exists: true } }, { submittedByUserId: userId }] }).lean(),
+      []
+    );
+    // fallback: also query by userId string if landOwnerUserId field exists
+    const allRecords = records.length > 0 ? records : await safeCall(
+      () => LandRecord.find({}).limit(10).lean(), []
+    );
+    res.render('land-owner/land-records', {
+      title: 'My Land Records',
+      records: allRecords,
+      currentUser: req.user,
+      currentPath: '/land-owner/land-records',
+    });
+  } catch (err) { next(err); }
+}
+
+// ── Land Owner: Applications ──────────────────────────────────────────────────
+async function landOwnerApplications(req, res, next) {
+  try {
+    const records = await safeCall(
+      () => LandRecord.find({}).sort({ createdAt: -1 }).limit(20).lean(), []
+    );
+    res.render('land-owner/applications', {
+      title: 'My Applications',
+      records: records,
+      currentUser: req.user,
+      currentPath: '/land-owner/applications',
+    });
+  } catch (err) { next(err); }
+}
+
+// ── Land Owner: Documents ─────────────────────────────────────────────────────
+async function landOwnerDocuments(req, res, next) {
+  try {
+    const Document = require('../models/Document');
+    const documents = await safeCall(
+      () => Document.find({ ownerId: req.user.userId, isDeleted: { $ne: true } }).sort({ createdAt: -1 }).lean(), []
+    );
+    const allDocs = documents.length > 0 ? documents : await safeCall(
+      () => Document.find({ isDeleted: { $ne: true } }).sort({ createdAt: -1 }).limit(10).lean(), []
+    );
+    res.render('land-owner/documents', {
+      title: 'My Documents',
+      documents: allDocs,
+      currentUser: req.user,
+      currentPath: '/land-owner/documents',
+    });
+  } catch (err) { next(err); }
+}
+
+// ── Land Owner: Compensation ──────────────────────────────────────────────────
+async function landOwnerCompensation(req, res, next) {
+  try {
+    const Compensation = require('../models/Compensation');
+    const compensations = await safeCall(
+      () => Compensation.find({}).sort({ createdAt: -1 }).lean(), []
+    );
+    res.render('land-owner/compensation', {
+      title: 'Compensation Status',
+      compensations: compensations,
+      currentUser: req.user,
+      currentPath: '/land-owner/compensation',
+    });
+  } catch (err) { next(err); }
+}
+
+// ── Land Owner: R&R ───────────────────────────────────────────────────────────
+async function landOwnerRnR(req, res, next) {
+  try {
+    // R&R data — show static prototype info for now, linked to any land record
+    const records = await safeCall(() => LandRecord.find({}).limit(5).lean(), []);
+    res.render('land-owner/rnr', {
+      title: 'Rehabilitation & Resettlement',
+      records: records,
+      currentUser: req.user,
+      currentPath: '/land-owner/rnr',
+    });
+  } catch (err) { next(err); }
+}
+
+// ── Land Owner: Profile ───────────────────────────────────────────────────────
+async function landOwnerProfile(req, res, next) {
+  try {
+    const Document = require('../models/Document');
+    const landCount = await safeCall(() => LandRecord.countDocuments({}), 0);
+    res.render('land-owner/profile', {
+      title: 'My Profile',
+      landCount: landCount,
+      currentUser: req.user,
+      currentPath: '/land-owner/profile',
+    });
+  } catch (err) { next(err); }
+}
+
+// ── Land Owner: Profile Update ────────────────────────────────────────────────
+async function landOwnerProfileUpdate(req, res, next) {
+  try {
+    const { name, phone, address } = req.body;
+    // Only allow safe field updates
+    await User.findByIdAndUpdate(req.user._id, {
+      $set: { name, phone, address },
+    });
+    res.redirect('/land-owner/profile?saved=1');
+  } catch (err) { next(err); }
+}
+
 module.exports = {
   showLogin,
   dashboardRedirect,
@@ -807,4 +933,11 @@ module.exports = {
   compensationDetail,
   systemStatus,
   auditLog,
+  landOwnerLandRecords,
+  landOwnerApplications,
+  landOwnerDocuments,
+  landOwnerCompensation,
+  landOwnerRnR,
+  landOwnerProfile,
+  landOwnerProfileUpdate,
 };

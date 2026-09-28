@@ -250,4 +250,27 @@ router.get(
   web.auditLog
 );
 
+// ── Land Owner Portal Routes ───────────────────────────────────────────────────
+
+// GET /land-owner/land-records
+router.get('/land-owner/land-records', authenticateUser, authorizeRoles(LAND_OWNER, SUPER_ADMIN), web.landOwnerLandRecords);
+
+// GET /land-owner/applications  
+router.get('/land-owner/applications', authenticateUser, authorizeRoles(LAND_OWNER, SUPER_ADMIN), web.landOwnerApplications);
+
+// GET /land-owner/documents
+router.get('/land-owner/documents', authenticateUser, authorizeRoles(LAND_OWNER, SUPER_ADMIN), web.landOwnerDocuments);
+
+// GET /land-owner/compensation
+router.get('/land-owner/compensation', authenticateUser, authorizeRoles(LAND_OWNER, SUPER_ADMIN), web.landOwnerCompensation);
+
+// GET /land-owner/rnr
+router.get('/land-owner/rnr', authenticateUser, authorizeRoles(LAND_OWNER, SUPER_ADMIN), web.landOwnerRnR);
+
+// GET /land-owner/profile
+router.get('/land-owner/profile', authenticateUser, authorizeRoles(LAND_OWNER, SUPER_ADMIN), web.landOwnerProfile);
+
+// POST /land-owner/profile (update safe fields)
+router.post('/land-owner/profile', authenticateUser, authorizeRoles(LAND_OWNER, SUPER_ADMIN), web.landOwnerProfileUpdate);
+
 module.exports = router;
