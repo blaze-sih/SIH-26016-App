@@ -1,0 +1,1561 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Land Owner Dashboard</title>
+  
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Leaflet GIS CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  
+
+  <!-- Enterprise GIS Mapping Engine -->
+  <script src="/js/lrvs-gis.js"></script>
+
+  <!-- Custom Enterprise Design -->
+  <link rel="stylesheet" href="/css/styles.css">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            lrvs: {
+              navy: '#1A2A42',
+              teal: '#207E85',
+              tealHover: '#19656b',
+              ice: '#F3F8F9',
+              white: '#FFFFFF',
+              border: '#E7EDEF',
+              slate: '#314155',
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="min-h-screen bg-[#F3F8F9] text-[#314155] antialiased font-sans flex flex-col md:flex-row overflow-x-hidden">
+
+  
+    <!-- Fixed Sidebar: 256px wide, fixed to viewport left -->
+    
+
+<aside id="mainSidebar" class="fixed top-0 left-0 z-40 w-64 h-screen max-h-screen flex flex-col justify-between bg-[#1A2A42] text-white select-none transition-transform duration-200 ease-in-out -translate-x-full md:translate-x-0 border-r border-[#243650]">
+
+  <!-- Top Container: Brand + Nav -->
+  <div class="flex flex-col flex-1 min-h-0 overflow-hidden">
+    
+    <!-- ── Branding ────────────────────────────────────────────────── -->
+    <div class="px-5 pt-5 pb-4 border-b border-[#243650] flex-shrink-0">
+      <div class="flex items-start gap-3">
+        <!-- Pillar Logo -->
+        <div class="flex-shrink-0 w-9 h-9 rounded-lg bg-[#207E85] flex items-center justify-center shadow-sm">
+          <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 21h18M3 7h18M4 7v14M8 7v14M12 7v14M16 7v14M20 7v14M2 7l10-4 10 4"/>
+          </svg>
+        </div>
+        <div class="min-w-0">
+          <div class="text-white font-bold text-base tracking-wide leading-none">LRVS</div>
+          <div class="text-slate-300 text-[11px] leading-tight mt-1">Land Acquisition &</div>
+          <div class="text-slate-300 text-[11px] leading-tight">Management System</div>
+          
+            <div class="text-slate-400 text-[11px] leading-tight mt-1">Land Owner</div>
+          
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Navigation ─────────────────────────────────────────────── -->
+    <nav class="flex-1 overflow-y-auto px-3 py-3 space-y-1">
+
+      
+      
+
+        <!-- Dashboard -->
+        <a href="/dashboard/land-owner" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm bg-[#207E85] text-white font-semibold shadow-sm">
+          <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+          </svg>
+          <span class="truncate">Dashboard</span>
+        </a>
+
+        <!-- My Land -->
+        <a href="#land-location" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-300 hover:bg-[#243650] hover:text-white transition-colors">
+          <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+          </svg>
+          <span class="truncate">My Land</span>
+        </a>
+
+        <!-- Documents -->
+        <a href="#documents-section" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-300 hover:bg-[#243650] hover:text-white transition-colors">
+          <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          <span class="truncate">Documents</span>
+        </a>
+
+        <!-- Compensation -->
+        <a href="#compensation-section" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-300 hover:bg-[#243650] hover:text-white transition-colors">
+          <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <span class="truncate">Compensation</span>
+        </a>
+
+        <!-- Acquisition Status -->
+        <a href="#status-section" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-300 hover:bg-[#243650] hover:text-white transition-colors">
+          <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/>
+          </svg>
+          <span class="truncate">Acquisition Status</span>
+        </a>
+
+        <!-- Notifications -->
+        <a href="#notifications" onclick="document.getElementById('navNotifBtn')?.click(); return false;" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-300 hover:bg-[#243650] hover:text-white transition-colors">
+          <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+          </svg>
+          <span class="truncate">Notifications</span>
+        </a>
+
+        <!-- Settings -->
+        <a href="/profile" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-300 hover:bg-[#243650] hover:text-white transition-colors">
+          <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/>
+          </svg>
+          <span class="truncate">Settings</span>
+        </a>
+
+      
+      
+
+    </nav>
+  </div>
+
+  <!-- Bottom Container: Government Identity & Subtle Logout -->
+  <div class="flex-shrink-0 border-t border-[#243650] bg-[#162337]/90 px-4 py-3">
+    
+      <div class="space-y-3">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-white text-[#1A2A42] flex items-center justify-center font-bold text-sm flex-shrink-0 shadow-sm border border-slate-200">
+            RP
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-white text-sm font-semibold leading-tight truncate">Ramesh Patil</div>
+            <div class="text-slate-400 text-xs leading-tight truncate mt-0.5">Land Owner</div>
+          </div>
+        </div>
+        <form action="/logout" method="POST" id="sidebarLogoutForm" class="pt-2 border-t border-[#243650]">
+          <button type="submit" class="flex items-center gap-2.5 text-slate-400 hover:text-red-400 text-xs font-medium transition-colors w-full py-1">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+            </svg>
+            <span>Logout</span>
+          </button>
+        </form>
+      </div>
+    
+  </div>
+
+</aside>
+
+
+    <!-- Main Workspace: Offset by 256px on desktop -->
+    <div class="ml-0 md:ml-64 w-full md:w-[calc(100vw-16rem)] min-h-screen flex flex-col flex-1 bg-[#F3F8F9] min-w-0">
+      <!-- Navbar: Workspace Header -->
+      
+
+<header class="sticky top-0 z-30 bg-white border-b border-[#E7EDEF] h-16 flex items-center justify-between px-4 sm:px-6 shadow-sm">
+
+  <!-- ── Left: Breadcrumb ──────────────────────────────────────── -->
+  <div class="flex items-center gap-3 min-w-0">
+    <!-- Hamburger for mobile -->
+    <button
+      id="sidebarToggleBtn"
+      class="md:hidden w-9 h-9 flex items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 transition-colors"
+      aria-label="Toggle sidebar"
+      onclick="document.getElementById('mainSidebar')?.classList.toggle('-translate-x-full')"
+    >
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+      </svg>
+    </button>
+
+    <!-- Breadcrumb items matching reference -->
+    <nav class="flex items-center gap-1.5 text-xs sm:text-sm font-medium min-w-0">
+      
+        <span class="text-slate-400">Land Owner</span>
+        <span class="text-slate-300 font-semibold mx-0.5">&gt;</span>
+        <span class="text-[#1A2A42] font-semibold">Dashboard</span>
+      
+    </nav>
+  </div>
+
+  <!-- ── Right: Controls matching Screenshot Order ──────────────── -->
+  <div class="flex items-center gap-3 sm:gap-4 flex-shrink-0">
+
+    <!-- 1. Search Box -->
+    <div class="relative hidden md:block">
+      <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+        <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35"/>
+        </svg>
+      </div>
+      <input
+        type="text"
+        placeholder="Search request ID, project name..."
+        class="w-64 lg:w-80 pl-9 pr-4 py-2 text-xs bg-white border border-[#E7EDEF] rounded-lg text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[#207E85] focus:border-[#207E85] transition-all shadow-sm"
+      />
+    </div>
+
+    <!-- 2. Notification Bell with Red Dot -->
+    <div class="relative" id="navNotifWrapper">
+      <button
+        id="navNotifBtn"
+        onclick="document.getElementById('navNotifDropdown').classList.toggle('hidden')"
+        class="w-9 h-9 flex items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 transition-colors relative"
+        aria-label="Notifications"
+      >
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+        </svg>
+        <!-- Red dot indicator -->
+        <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"></span>
+      </button>
+
+      <!-- Notification Dropdown -->
+      <div id="navNotifDropdown" class="hidden absolute right-0 mt-2 w-80 bg-white border border-[#E7EDEF] rounded-xl shadow-xl z-50 overflow-hidden">
+        <div class="px-4 py-3 border-b border-[#E7EDEF] flex items-center justify-between bg-[#F8FAFB]">
+          <span class="text-xs font-bold text-[#1A2A42] uppercase tracking-wide">Notifications</span>
+          <span class="text-[11px] text-[#207E85] font-semibold cursor-pointer hover:underline">Mark all read</span>
+        </div>
+        <div class="divide-y divide-[#F1F5F7] max-h-64 overflow-y-auto">
+          <div class="px-4 py-3 hover:bg-[#F8FAFB] transition-colors cursor-pointer">
+            <div class="flex items-start gap-3">
+              <div class="w-2 h-2 rounded-full bg-[#207E85] mt-1.5 flex-shrink-0"></div>
+              <div>
+                <p class="text-xs text-slate-800 font-semibold">New acquisition proposal submitted</p>
+                <p class="text-[11px] text-slate-500 mt-0.5">Greenfield Expressway, Nashik · 12 Aug 2026</p>
+              </div>
+            </div>
+          </div>
+          <div class="px-4 py-3 hover:bg-[#F8FAFB] transition-colors cursor-pointer">
+            <div class="flex items-start gap-3">
+              <div class="w-2 h-2 rounded-full bg-amber-400 mt-1.5 flex-shrink-0"></div>
+              <div>
+                <p class="text-xs text-slate-800 font-semibold">Verification review pending</p>
+                <p class="text-[11px] text-slate-500 mt-0.5">LA-2026-0158 · Nashik District</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. User Avatar Circle + Dropdown (AD / SG / DN) -->
+    <div class="relative" id="navUserWrapper">
+      <button
+        id="navUserBtn"
+        onclick="document.getElementById('navUserDropdown').classList.toggle('hidden')"
+        class="flex items-center gap-1.5 p-1 rounded-lg hover:bg-slate-100 transition-colors group"
+        aria-label="User menu"
+      >
+        <div class="w-8 h-8 rounded-full bg-[#207E85] flex items-center justify-center text-white text-xs font-bold shadow-sm flex-shrink-0">
+          RP
+        </div>
+        <svg class="w-3.5 h-3.5 text-slate-500 group-hover:text-slate-700 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </button>
+
+      <!-- User Dropdown with /logout Form -->
+      <div id="navUserDropdown" class="hidden absolute right-0 mt-2 w-64 bg-white border border-[#E7EDEF] rounded-xl shadow-xl z-50 overflow-hidden">
+        <div class="px-4 py-3 border-b border-[#E7EDEF] bg-[#F8FAFB]">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full bg-[#207E85] flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
+              RP
+            </div>
+            <div class="min-w-0">
+              <div class="text-xs font-bold text-[#1A2A42] truncate">Ramesh Patil</div>
+              <div class="text-[11px] text-slate-500 font-mono truncate">LAND-001</div>
+              <div class="text-[10px] text-[#207E85] font-semibold truncate mt-0.5">LAND_OWNER</div>
+            </div>
+          </div>
+        </div>
+        <div class="py-1">
+          <a href="/profile" class="flex items-center gap-2.5 px-4 py-2 text-xs text-slate-700 hover:bg-[#F3F8F9] hover:text-[#207E85] transition-colors">
+            <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+            </svg>
+            Profile & Settings
+          </a>
+        </div>
+        <div class="border-t border-[#E7EDEF] py-1 bg-[#FAFCFD]">
+          <form action="/logout" method="POST" id="navbarLogoutForm">
+            <button type="submit" class="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 transition-colors text-left">
+              <svg class="w-4 h-4 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+              </svg>
+              Logout
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Date Card matching Reference Screenshot at Far Right -->
+    <div class="flex items-center gap-2 px-3 py-1.5 bg-white border border-[#E7EDEF] rounded-lg shadow-sm text-right select-none">
+      <svg class="w-4 h-4 text-[#1A2A42] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+        <line x1="16" y1="2" x2="16" y2="6"/>
+        <line x1="8" y1="2" x2="8" y2="6"/>
+        <line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
+      <div class="text-right leading-tight">
+        <div id="navDateDay" class="text-xs font-bold text-[#1A2A42]">12 Aug 2026</div>
+        <div id="navDateWeekday" class="text-[10px] text-slate-400 font-medium">Wednesday</div>
+      </div>
+    </div>
+
+  </div>
+
+</header>
+
+<!-- Script for Dropdown toggles and date display -->
+<script>
+(function() {
+  // Format current date nicely
+  try {
+    const now = new Date();
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const dayEl = document.getElementById('navDateDay');
+    const weekdayEl = document.getElementById('navDateWeekday');
+    if (dayEl && weekdayEl) {
+      dayEl.textContent = now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear();
+      weekdayEl.textContent = days[now.getDay()];
+    }
+  } catch (e) {}
+
+  // Close dropdowns on outside click
+  document.addEventListener('click', function(e) {
+    const notifWrapper = document.getElementById('navNotifWrapper');
+    const notifDropdown = document.getElementById('navNotifDropdown');
+    if (notifWrapper && notifDropdown && !notifWrapper.contains(e.target)) {
+      notifDropdown.classList.add('hidden');
+    }
+    const userWrapper = document.getElementById('navUserWrapper');
+    const userDropdown = document.getElementById('navUserDropdown');
+    if (userWrapper && userDropdown && !userWrapper.contains(e.target)) {
+      userDropdown.classList.add('hidden');
+    }
+  });
+})();
+</script>
+
+
+      <!-- Main Content Canvas -->
+      <main class="flex-1 p-4 sm:p-6 lg:p-8 bg-[#F3F8F9]">
+        <div class="max-w-[1600px] mx-auto space-y-6">
+          
+
+
+
+          <!-- Land Owner Transparency Portal -->
+<div class="space-y-6">
+
+  <!-- ── Top Welcome Banner matching Image 1 ─────────────────────────────── -->
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+        Good Morning, Ramesh 
+        <span class="inline-block animate-pulse">👋</span>
+      </h1>
+      <p class="text-xs text-slate-500 mt-1">
+        Your land acquisition information is available here. You can view your land, documents and compensation status.
+      </p>
+    </div>
+    
+    <!-- Land Owner ID Badge matching Screenshot -->
+    <div class="flex items-center gap-3 bg-emerald-50/70 border border-emerald-100 rounded-xl px-4 py-2.5 flex-shrink-0">
+      <div class="w-9 h-9 rounded-lg bg-emerald-100/80 text-emerald-700 flex items-center justify-center flex-shrink-0">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+        </svg>
+      </div>
+      <div>
+        <div class="text-[11px] font-medium text-slate-400 leading-tight">Land Owner ID</div>
+        <div class="text-sm font-bold text-slate-900 font-mono tracking-wide leading-tight mt-0.5">
+          LAND-001
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Top 4 Stat Cards matching Image 1 ─────────────────────────────────── -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+
+    <!-- Card 1: My Land Parcel -->
+    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow relative group">
+      <div class="flex items-start justify-between">
+        <div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+          </svg>
+        </div>
+        <a href="#land-location" class="text-slate-400 group-hover:text-slate-600 transition-colors">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+          </svg>
+        </a>
+      </div>
+      <div class="mt-4">
+        <span class="text-xs font-semibold text-slate-500">My Land Parcel</span>
+        <div class="text-2xl font-bold text-slate-900 mt-0.5" id="statParcelCount">
+          1
+        </div>
+        <span class="text-[11px] text-slate-400 mt-1 block">Total land parcel</span>
+      </div>
+    </div>
+
+    <!-- Card 2: Documents -->
+    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow relative group">
+      <div class="flex items-start justify-between">
+        <div class="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+        </div>
+        <a href="#documents-section" class="text-slate-400 group-hover:text-slate-600 transition-colors">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+          </svg>
+        </a>
+      </div>
+      <div class="mt-4">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold text-slate-500">Documents</span>
+          <span id="docVerifiedBadge" class="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Verified
+          </span>
+        </div>
+        <div class="text-2xl font-bold text-slate-900 mt-0.5" id="statDocCount">
+          3 / 3
+        </div>
+        <span class="text-[11px] text-slate-400 mt-1 block">Uploaded & Digitized</span>
+      </div>
+    </div>
+
+    <!-- Card 3: Estimated Compensation -->
+    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow relative group">
+      <div class="flex items-start justify-between">
+        <div class="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-xl">
+          ₹
+        </div>
+        <a href="#compensation-section" class="text-slate-400 group-hover:text-slate-600 transition-colors">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+          </svg>
+        </a>
+      </div>
+      <div class="mt-4">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold text-slate-500">Estimated Compensation</span>
+        </div>
+        <div class="text-2xl font-bold text-slate-900 mt-0.5">
+          ₹12.45 Lakh
+        </div>
+        <div class="mt-1">
+          <span class="inline-flex items-center gap-1.5 text-[11px] font-medium text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full">
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> Under Process
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 4: Current Status -->
+    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow relative group">
+      <div class="flex items-start justify-between">
+        <div class="w-11 h-11 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+          </svg>
+        </div>
+        <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+      </div>
+      <div class="mt-4">
+        <span class="text-xs font-semibold text-slate-500">Current Status</span>
+        <div class="text-lg font-bold text-slate-900 mt-0.5" id="displayCurrentStatus">
+          Under Verification
+        </div>
+        <span class="text-[11px] text-slate-400 mt-1 block">Next: Government Approval</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Middle Row: Your Land Location (Map) & Acquisition Progress Timeline ──── -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+
+    <!-- Left 8 Cols: Your Land Location Map Container -->
+    <div id="land-location" class="lg:col-span-8 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+      <div>
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4">
+          <div>
+            <h2 class="text-base font-bold text-slate-900">Your Land Location</h2>
+            <p class="text-xs text-slate-500 mt-0.5">
+              Survey No. <span id="mapSurveyNoText">142/8</span>, Sinnar, Nashik, Maharashtra
+            </p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="zoomToParcel()" class="px-3 py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="3"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 2v3m0 14v3m10-10h-3M5 12H2"/>
+              </svg>
+              Recenter
+            </button>
+          </div>
+        </div>
+
+        <!-- Interactive Satellite Map Container -->
+        <div class="relative w-full h-[360px] sm:h-[400px] rounded-xl overflow-hidden border border-slate-200 shadow-inner bg-slate-900">
+          <div id="parcelMap" class="w-full h-full z-0"></div>
+
+          <!-- Bottom Left Legend Overlay matching Image 1 -->
+          <div class="absolute bottom-3 left-3 z-[400] bg-white/95 backdrop-blur-md px-3 py-2 rounded-lg shadow-md border border-slate-200/80 flex items-center gap-4 text-xs font-medium text-slate-700">
+            <div class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+              <span>Your Land Parcel</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
+              <span>Surrounding Area</span>
+            </div>
+          </div>
+
+          <!-- Bottom Right Button matching Image 1 -->
+          <div class="absolute bottom-3 right-3 z-[400]">
+            <a href="/map" class="px-3 py-2 bg-white/95 backdrop-blur-md hover:bg-white text-slate-800 text-xs font-semibold rounded-lg shadow-md border border-slate-200 transition-colors flex items-center gap-1.5">
+              <span>View Full Map</span>
+              <svg class="w-3.5 h-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right 4 Cols: Acquisition Progress Timeline Stepper -->
+    <div id="status-section" class="lg:col-span-4 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+      <div>
+        <h2 class="text-base font-bold text-slate-900 pb-3 border-b border-slate-100">Acquisition Progress</h2>
+
+        <!-- Vertical Stepper matching Image 1 -->
+        <div class="mt-4 relative pl-7 space-y-6">
+          <!-- Connecting vertical line -->
+          <div class="absolute left-3 top-2.5 bottom-2.5 w-0.5 bg-slate-200 -translate-x-1/2 z-0"></div>
+
+          <!-- Step 1: Application Submitted -->
+          <div class="relative z-10">
+            <div class="absolute -left-7 top-0 w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs shadow-sm">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+              </svg>
+            </div>
+            <div>
+              <div class="text-xs font-bold text-slate-900">Application Submitted</div>
+              <div class="text-[11px] text-slate-400 mt-0.5">18 Sep 2026</div>
+            </div>
+          </div>
+
+          <!-- Step 2: Documents Verified -->
+          <div class="relative z-10">
+            <div class="absolute -left-7 top-0 w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs shadow-sm">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+              </svg>
+            </div>
+            <div>
+              <div class="text-xs font-bold text-slate-900">Documents Verified</div>
+              <div class="text-[11px] text-slate-400 mt-0.5">20 Sep 2026</div>
+            </div>
+          </div>
+
+          <!-- Step 3: Field Survey Completed -->
+          <div class="relative z-10">
+            <div class="absolute -left-7 top-0 w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs shadow-sm">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+              </svg>
+            </div>
+            <div>
+              <div class="text-xs font-bold text-slate-900">Field Survey Completed</div>
+              <div class="text-[11px] text-slate-400 mt-0.5">22 Sep 2026</div>
+            </div>
+          </div>
+
+          <!-- Step 4: Government Approval (Active Review) -->
+          <div class="relative z-10">
+            <div class="absolute -left-7 top-0 w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs shadow-md ring-4 ring-blue-100 animate-pulse">
+              <span class="w-2 h-2 rounded-full bg-white"></span>
+            </div>
+            <div>
+              <div class="text-xs font-bold text-blue-900">Government Approval</div>
+              <div class="inline-block mt-1 px-2 py-0.5 bg-blue-50 text-blue-700 text-[11px] font-semibold rounded-md border border-blue-100">
+                Currently Under Review
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 5: Compensation Pending -->
+          <div class="relative z-10 opacity-60">
+            <div class="absolute -left-7 top-0 w-6 h-6 rounded-full bg-white border-2 border-slate-300 flex items-center justify-center text-xs">
+              <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+            </div>
+            <div>
+              <div class="text-xs font-semibold text-slate-700">Compensation</div>
+              <div class="text-[11px] text-slate-400 mt-0.5">Pending</div>
+            </div>
+          </div>
+
+          <!-- Step 6: Possession & R&R Pending -->
+          <div class="relative z-10 opacity-60">
+            <div class="absolute -left-7 top-0 w-6 h-6 rounded-full bg-white border-2 border-slate-300 flex items-center justify-center text-xs">
+              <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+            </div>
+            <div>
+              <div class="text-xs font-semibold text-slate-700">Possession &amp; R&amp;R</div>
+              <div class="text-[11px] text-slate-400 mt-0.5">Pending</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
+        <span class="text-slate-400">Target Completion:</span>
+        <span class="font-bold text-slate-800">Dec 2026</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Bottom Row: My Land Details, Documents List & Compensation ────────── -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- Card 1: My Land Details matching Image 1 -->
+    <div id="land-details" class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+      <div>
+        <div class="flex items-center gap-3 pb-4 border-b border-slate-100">
+          <div class="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-sm font-bold text-slate-900">My Land Details</h2>
+            <div class="text-[11px] text-slate-400">Official Revenue Record</div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 mt-5">
+          <div class="p-3 bg-slate-50/70 rounded-xl border border-slate-100">
+            <span class="text-[11px] text-slate-400 font-medium block">Survey Number</span>
+            <span id="cardSurveyNumber" class="text-base font-bold text-slate-900 font-mono mt-0.5 block">
+              142/8
+            </span>
+          </div>
+
+          <div class="p-3 bg-slate-50/70 rounded-xl border border-slate-100">
+            <span class="text-[11px] text-slate-400 font-medium block">Village</span>
+            <span id="cardVillage" class="text-base font-bold text-slate-900 mt-0.5 block">
+              Sinnar
+            </span>
+          </div>
+
+          <div class="p-3 bg-slate-50/70 rounded-xl border border-slate-100">
+            <span class="text-[11px] text-slate-400 font-medium block">District</span>
+            <span id="cardDistrict" class="text-base font-bold text-slate-900 mt-0.5 block">
+              Nashik
+            </span>
+          </div>
+
+          <div class="p-3 bg-slate-50/70 rounded-xl border border-slate-100">
+            <span class="text-[11px] text-slate-400 font-medium block">Area</span>
+            <span id="cardLandArea" class="text-base font-bold text-slate-900 mt-0.5 block">
+              45.2 Hectare Ha
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-5 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
+        <span>Request ID: <strong class="text-slate-800 font-mono">LA-2026-0245</strong></span>
+        <span class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-semibold">Active Parcel</span>
+      </div>
+    </div>
+
+    <!-- Card 2: Documents List matching Image 1 -->
+    <div id="documents-section" class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+      <div>
+        <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+            </div>
+            <div>
+              <h2 class="text-sm font-bold text-slate-900">Documents</h2>
+              <div class="text-[11px] text-slate-400">Verification &amp; AI Extraction</div>
+            </div>
+          </div>
+          <button onclick="openUploadModal()" class="px-2.5 py-1 text-xs font-semibold text-[#207E85] bg-teal-50 hover:bg-teal-100 rounded-lg transition-colors flex items-center gap-1">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+            </svg>
+            <span>Add</span>
+          </button>
+        </div>
+
+        <!-- Documents List -->
+        <div class="mt-4 space-y-3" id="docListContainer">
+          
+            
+              <div class="p-3 bg-slate-50/80 rounded-xl border border-slate-100 flex items-center justify-between hover:bg-slate-100/80 transition-colors group cursor-pointer"
+                   onclick="openReviewModal('DOC-2026-00003', 'AADHAAR_VERIFICATION', 'AADHAAR_VERIFICATION')">
+                <div class="flex items-center gap-3 min-w-0">
+                  <div class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0 text-xs">
+                    
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                      </svg>
+                    
+                  </div>
+                  <div class="truncate">
+                    <div class="text-xs font-semibold text-slate-800 truncate">
+                      Aadhaar Verification
+                    </div>
+                    <div class="text-[10px] text-slate-400 font-mono mt-0.5">
+                      DOC-2026-00003 · v1
+                    </div>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-2 flex-shrink-0">
+                  
+                    <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold border border-emerald-100 flex items-center gap-1">
+                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Verified
+                    </span>
+                  
+                  <button type="button" class="text-slate-400 group-hover:text-[#207E85] transition-colors p-1" title="Review Document">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            
+              <div class="p-3 bg-slate-50/80 rounded-xl border border-slate-100 flex items-center justify-between hover:bg-slate-100/80 transition-colors group cursor-pointer"
+                   onclick="openReviewModal('DOC-2026-00002', 'LAND_OWNERSHIP_RECORD', 'LAND_OWNERSHIP_RECORD')">
+                <div class="flex items-center gap-3 min-w-0">
+                  <div class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0 text-xs">
+                    
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                      </svg>
+                    
+                  </div>
+                  <div class="truncate">
+                    <div class="text-xs font-semibold text-slate-800 truncate">
+                      Land Ownership Record
+                    </div>
+                    <div class="text-[10px] text-slate-400 font-mono mt-0.5">
+                      DOC-2026-00002 · v1
+                    </div>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-2 flex-shrink-0">
+                  
+                    <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold border border-emerald-100 flex items-center gap-1">
+                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Verified
+                    </span>
+                  
+                  <button type="button" class="text-slate-400 group-hover:text-[#207E85] transition-colors p-1" title="Review Document">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            
+              <div class="p-3 bg-slate-50/80 rounded-xl border border-slate-100 flex items-center justify-between hover:bg-slate-100/80 transition-colors group cursor-pointer"
+                   onclick="openReviewModal('DOC-2026-00001', '7_12_EXTRACT', '7_12_EXTRACT')">
+                <div class="flex items-center gap-3 min-w-0">
+                  <div class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0 text-xs">
+                    
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                      </svg>
+                    
+                  </div>
+                  <div class="truncate">
+                    <div class="text-xs font-semibold text-slate-800 truncate">
+                      7/12 Extract
+                    </div>
+                    <div class="text-[10px] text-slate-400 font-mono mt-0.5">
+                      DOC-2026-00001 · v1
+                    </div>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-2 flex-shrink-0">
+                  
+                    <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold border border-emerald-100 flex items-center gap-1">
+                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Verified
+                    </span>
+                  
+                  <button type="button" class="text-slate-400 group-hover:text-[#207E85] transition-colors p-1" title="Review Document">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            
+          
+        </div>
+      </div>
+
+      <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+        <span class="text-slate-400">Total: 3 files</span>
+        <button onclick="openUploadModal()" class="font-bold text-[#207E85] hover:underline flex items-center gap-1">
+          <span>Upload Document</span>
+          <span>→</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Card 3: Compensation Status matching Image 1 -->
+    <div id="compensation-section" class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+      <div>
+        <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-lg">
+              ₹
+            </div>
+            <div>
+              <h2 class="text-sm font-bold text-slate-900">Compensation Status</h2>
+              <div class="text-[11px] text-slate-400">Direct Bank Transfer</div>
+            </div>
+          </div>
+          <a href="/compensation" class="text-xs font-semibold text-blue-600 hover:underline flex items-center gap-0.5">
+            View Details &gt;
+          </a>
+        </div>
+
+        <div class="mt-5 p-4 bg-gradient-to-br from-amber-50/50 to-orange-50/30 rounded-xl border border-amber-100">
+          <span class="text-xs text-slate-500 font-medium">Estimated Compensation</span>
+          <div class="text-2xl font-black text-slate-900 mt-1 tracking-tight">
+            ₹12,45,000
+          </div>
+          <div class="mt-3 flex items-center gap-2">
+            <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-800 bg-amber-100/80 px-2.5 py-1 rounded-full">
+              <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span> Under Processing
+            </span>
+          </div>
+        </div>
+
+        <div class="mt-4 space-y-2 text-xs text-slate-500">
+          <div class="flex items-center justify-between py-1 border-b border-slate-100">
+            <span>Land Rate / Acre</span>
+            <span class="font-semibold text-slate-800">₹1,10,000</span>
+          </div>
+          <div class="flex items-center justify-between py-1 border-b border-slate-100">
+            <span>Solatium (100% LARR)</span>
+            <span class="font-semibold text-slate-800">₹6,22,500</span>
+          </div>
+          <div class="flex items-center justify-between py-1">
+            <span>Direct Credit Account</span>
+            <span class="font-semibold font-mono text-slate-800">SBI ···· 4821</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-5 pt-3 border-t border-slate-100 text-[11px] text-slate-400">
+        Disbursement will be triggered automatically upon Final Government Approval.
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- MODAL 1: ADD DOCUMENT (UPLOAD) — Matching Image 2 Screen 2                   -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<div id="uploadModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transform transition-all duration-200">
+    
+    <!-- Modal Header -->
+    <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <button onclick="closeUploadModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+          </svg>
+        </button>
+        <h3 class="text-base font-bold text-slate-900">Add Document</h3>
+      </div>
+      <button onclick="closeUploadModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Modal Body Form -->
+    <form id="uploadDocForm" onsubmit="handleDocumentUpload(event)" class="p-6 space-y-5">
+      
+      <!-- Document Type Select -->
+      <div>
+        <label class="block text-xs font-bold text-slate-700 mb-1.5">
+          Document Type <span class="text-red-500">*</span>
+        </label>
+        <div class="relative">
+          <select id="uploadDocType" required class="w-full px-3.5 py-2.5 text-xs bg-white border border-slate-300 rounded-xl text-slate-800 font-medium appearance-none focus:outline-none focus:ring-2 focus:ring-[#207E85]/20 focus:border-[#207E85]">
+            <option value="7_12_EXTRACT" selected>7/12 Extract</option>
+            <option value="LAND_OWNERSHIP_RECORD">Land Ownership Record</option>
+            <option value="AADHAAR_VERIFICATION">Aadhaar Card / Identity Proof</option>
+            <option value="SALE_DEED">Sale Deed / Title Deed</option>
+            <option value="MUTATION_REGISTER">Mutation Register (Ferfar 6D)</option>
+          </select>
+          <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-400">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Drag & Drop Upload Zone matching Screenshot 2 -->
+      <div id="dropZone" class="border-2 border-dashed border-blue-200 hover:border-[#207E85] rounded-2xl p-6 text-center bg-blue-50/30 transition-colors cursor-pointer" onclick="document.getElementById('docFileInput').click()">
+        <input type="file" id="docFileInput" name="document" class="hidden" accept=".pdf,.jpg,.jpeg,.png" onchange="handleFileSelected(this)">
+        
+        <div class="w-12 h-12 mx-auto rounded-full bg-blue-100/70 text-[#207E85] flex items-center justify-center mb-3">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+          </svg>
+        </div>
+        <div class="text-xs font-bold text-slate-800" id="fileUploadPrompt">Tap to upload</div>
+        <div class="text-[11px] text-slate-400 mt-1">PDF, JPG, JPEG, PNG (Max 10 MB)</div>
+        <div id="selectedFileName" class="hidden mt-2 text-xs font-semibold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200 inline-block"></div>
+      </div>
+
+      <!-- Choose File / Take Photo Buttons matching Screenshot 2 -->
+      <div class="grid grid-cols-2 gap-3">
+        <button type="button" onclick="document.getElementById('docFileInput').click()" class="py-2.5 px-3 bg-white hover:bg-slate-50 border border-blue-200 text-blue-700 text-xs font-semibold rounded-xl flex items-center justify-center gap-2 transition-colors">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+          </svg>
+          <span>Choose File</span>
+        </button>
+
+        <button type="button" onclick="document.getElementById('docFileInput').click()" class="py-2.5 px-3 bg-white hover:bg-slate-50 border border-blue-200 text-blue-700 text-xs font-semibold rounded-xl flex items-center justify-center gap-2 transition-colors">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+          <span>Take Photo</span>
+        </button>
+      </div>
+
+      <!-- Submit Button matching Screenshot 2: "Upload & Process" in Dark Teal -->
+      <button type="submit" id="btnUploadSubmit" class="w-full py-3 bg-[#207E85] hover:bg-[#19656b] text-white font-bold text-xs rounded-xl shadow-md transition-colors flex items-center justify-center gap-2">
+        <span id="btnUploadText">Upload &amp; Process</span>
+        <svg id="uploadSpinner" class="hidden animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+      </button>
+
+    </form>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- MODAL 2: REVIEW & CORRECT (TAB VIEW) — Matching Image 2 Screen 3             -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<div id="reviewModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+  <div class="bg-white w-full max-w-xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh]">
+    
+    <!-- Modal Header matching Image 2 Screen 3 -->
+    <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between flex-shrink-0">
+      <div class="flex items-center gap-2.5">
+        <button onclick="closeReviewModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+          </svg>
+        </button>
+        <div>
+          <h3 class="text-base font-bold text-slate-900">Review Document</h3>
+          <div class="text-[10px] text-slate-400 font-mono" id="reviewDocMeta">DOC-2026-00001 · 7/12 Extract</div>
+        </div>
+      </div>
+      <button onclick="closeReviewModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Tabs Navigation matching Image 2 Screen 3 -->
+    <div class="flex border-b border-slate-200 bg-slate-50/50 px-5 flex-shrink-0">
+      <button type="button" id="tabBtnOriginal" onclick="switchReviewTab('original')" class="py-3 px-4 text-xs font-bold text-slate-500 border-b-2 border-transparent hover:text-slate-700 transition-colors flex items-center gap-1.5">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+        <span>Original Document</span>
+      </button>
+      <button type="button" id="tabBtnExtracted" onclick="switchReviewTab('extracted')" class="py-3 px-4 text-xs font-bold text-[#207E85] border-b-2 border-[#207E85] transition-colors flex items-center gap-1.5">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+        </svg>
+        <span>Extracted Data</span>
+      </button>
+    </div>
+
+    <!-- Modal Scrollable Content Canvas -->
+    <div class="overflow-y-auto flex-1 p-5">
+      
+      <!-- ── TAB 1: ORIGINAL DOCUMENT PREVIEW (Streamed from /api/documents/:id/file) ── -->
+      <div id="tabOriginalContent" class="hidden space-y-4">
+        <!-- Viewer Toolbar matching Screenshot 3 -->
+        <div class="flex items-center justify-between bg-slate-900 text-white px-3 py-2 rounded-t-xl text-xs">
+          <div class="flex items-center gap-2">
+            <span class="text-slate-400 font-mono text-[11px]" id="previewDocTitle">7_12_extract.pdf</span>
+            <span class="text-[10px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded">Page 1 / 1</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <button onclick="adjustDocZoom(-0.1)" class="hover:text-cyan-400" title="Zoom Out">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M8 11h6"/>
+              </svg>
+            </button>
+            <button onclick="adjustDocZoom(0.1)" class="hover:text-cyan-400" title="Zoom In">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M11 8v6m-3-3h6"/>
+              </svg>
+            </button>
+            <a id="btnDocDownloadLink" href="#" target="_blank" class="hover:text-cyan-400" title="Open Stream">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- Document Viewer Container with Marathi 7/12 Extract Visual Representation -->
+        <div class="bg-slate-100 rounded-b-xl border border-slate-200 p-4 overflow-hidden relative min-h-[360px] flex items-center justify-center">
+          <div id="docViewerWrapper" class="w-full bg-white shadow-md rounded p-4 border border-slate-300 text-slate-800 transition-transform origin-top">
+            
+            <!-- Stylized Official 7/12 Extract Header matching screenshot -->
+            <div class="text-center pb-3 border-b-2 border-slate-800">
+              <div class="text-sm font-bold tracking-wide">गाव नमुना सात (७/१२ उतारा)</div>
+              <div class="text-[11px] text-slate-600 mt-0.5">महाराष्ट्र शासन - महसूल व वन विभाग (सिन्नर, नाशिक)</div>
+            </div>
+
+            <!-- 7/12 Table Grid with Highlighted Survey Number matching Screenshot 3 -->
+            <table class="w-full mt-3 text-[11px] border-collapse border border-slate-400 text-center">
+              <thead>
+                <tr class="bg-slate-200/80 font-bold">
+                  <th class="border border-slate-400 p-1">क्रमांक</th>
+                  <th class="border border-slate-400 p-1">खातेदार</th>
+                  <th class="border border-slate-400 p-1">गट / सर्व्हे</th>
+                  <th class="border border-slate-400 p-1">क्षेत्र (हेक्टर)</th>
+                  <th class="border border-slate-400 p-1">आकार</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="border border-slate-400 p-1.5 font-mono">१</td>
+                  <td class="border border-slate-400 p-1.5 font-semibold">रमेश पाटील</td>
+                  <!-- Red highlighted cell matching Image 2 Screen 3 -->
+                  <td class="border border-slate-400 p-1.5 bg-red-50/80 font-bold text-red-700 relative">
+                    <span class="inline-block px-1.5 py-0.5 border border-red-500 rounded bg-red-100/50 font-mono text-xs">
+                      142/8
+                    </span>
+                  </td>
+                  <td class="border border-slate-400 p-1.5 font-mono">45.2</td>
+                  <td class="border border-slate-400 p-1.5">२.५०</td>
+                </tr>
+                <tr class="text-slate-500">
+                  <td class="border border-slate-400 p-1 font-mono">२</td>
+                  <td class="border border-slate-400 p-1">भाऊसाहेब पाटील</td>
+                  <td class="border border-slate-400 p-1 font-mono">143/1</td>
+                  <td class="border border-slate-400 p-1 font-mono">12.0</td>
+                  <td class="border border-slate-400 p-1">१.२०</td>
+                </tr>
+                <tr class="text-slate-500">
+                  <td class="border border-slate-400 p-1 font-mono">३</td>
+                  <td class="border border-slate-400 p-1">सखाराम शिंदे</td>
+                  <td class="border border-slate-400 p-1 font-mono">144/2</td>
+                  <td class="border border-slate-400 p-1 font-mono">18.5</td>
+                  <td class="border border-slate-400 p-1">१.८०</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="mt-4 p-2.5 bg-amber-50 rounded-lg border border-amber-200 flex items-start gap-2 text-[11px] text-amber-800">
+              <span class="text-amber-600 font-bold">ℹ️ Note:</span>
+              <span>The OCR AI model detected printed ink artifact on survey cell. Original document text shows <strong>142/8</strong>. Please switch to the "Extracted Data" tab to verify and confirm.</span>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="flex justify-end">
+          <button type="button" onclick="switchReviewTab('extracted')" class="px-4 py-2 bg-[#207E85] text-white text-xs font-bold rounded-xl hover:bg-[#19656b] transition-colors flex items-center gap-1.5">
+            <span>Proceed to Extracted Data</span>
+            <span>→</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ── TAB 2: EXTRACTED DATA FORM (Matching Image 2 Screen 3) ──────────── -->
+      <div id="tabExtractedContent" class="space-y-4">
+        
+        <form id="correctionForm" onsubmit="handleCorrectionSubmit(event)" class="space-y-4">
+          <input type="hidden" id="editDocId" value="DOC-2026-00001">
+
+          <!-- Owner Name -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">
+              Owner Name <span class="text-red-500">*</span>
+            </label>
+            <input type="text" id="editOwnerName" required value="Ramesh Patil"
+                   class="w-full px-3.5 py-2.5 text-xs bg-white border border-slate-300 rounded-xl text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-[#207E85]/20 focus:border-[#207E85]">
+          </div>
+
+          <!-- Survey Number with edit icon & RED WARNING NOTE matching Image 2 Screen 3 -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">
+              Survey Number <span class="text-red-500">*</span>
+            </label>
+            <div class="relative">
+              <input type="text" id="editSurveyNumber" required value="142/3"
+                     class="w-full px-3.5 py-2.5 text-xs bg-white border border-red-300 focus:border-red-500 rounded-xl text-slate-900 font-mono font-bold focus:outline-none focus:ring-2 focus:ring-red-200 pr-10">
+              <div class="absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
+                <svg class="w-4 h-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Red Verification Alert matching Image 2 Screen 3 -->
+            <div id="surveyAlertHint" class="flex items-center gap-1.5 mt-1.5 text-red-600 text-[11px] font-semibold">
+              <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+              </svg>
+              <span>Please verify (Document shows 142/8)</span>
+              <button type="button" onclick="applySuggestedCorrection('142/8')" class="ml-2 underline text-red-700 font-bold hover:text-red-900">
+                Apply 142/8
+              </button>
+            </div>
+          </div>
+
+          <!-- Village -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">
+              Village <span class="text-red-500">*</span>
+            </label>
+            <input type="text" id="editVillage" required value="Sinnar"
+                   class="w-full px-3.5 py-2.5 text-xs bg-white border border-slate-300 rounded-xl text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-[#207E85]/20 focus:border-[#207E85]">
+          </div>
+
+          <!-- District -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">
+              District <span class="text-red-500">*</span>
+            </label>
+            <input type="text" id="editDistrict" required value="Nashik"
+                   class="w-full px-3.5 py-2.5 text-xs bg-white border border-slate-300 rounded-xl text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-[#207E85]/20 focus:border-[#207E85]">
+          </div>
+
+          <!-- Land Area & Unit -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">
+              Land Area <span class="text-red-500">*</span>
+            </label>
+            <div class="grid grid-cols-12 gap-2">
+              <input type="number" step="0.01" id="editLandArea" required value="45.2"
+                     class="col-span-8 px-3.5 py-2.5 text-xs bg-white border border-slate-300 rounded-xl text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-[#207E85]/20 focus:border-[#207E85]">
+              <select id="editAreaUnit" class="col-span-4 px-3 py-2.5 text-xs bg-white border border-slate-300 rounded-xl text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-[#207E85]/20 focus:border-[#207E85]">
+                <option value="Hectare" selected>Ha</option>
+                <option value="Acre">Acre</option>
+                <option value="SqMeters">Sq.m</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Save & Submit Button matching Image 2 Screen 3 -->
+          <div class="pt-2">
+            <button type="submit" id="btnSaveSubmit" class="w-full py-3 bg-[#207E85] hover:bg-[#19656b] text-white font-bold text-xs rounded-xl shadow-md transition-colors flex items-center justify-center gap-2">
+              <span id="btnSaveText">Save &amp; Submit</span>
+              <svg id="saveSpinner" class="hidden animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            </button>
+          </div>
+
+        </form>
+
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- CLIENT SCRIPTS — GIS Map, Dynamic Modals, AI Correction Workflow           -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<script>
+  let parcelMapInstance = null;
+  let parcelPolygonLayer = null;
+  let docCurrentZoom = 1.0;
+
+  // Initialize interactive GIS satellite map
+  document.addEventListener('DOMContentLoaded', () => {
+    initParcelMap();
+  });
+
+  function initParcelMap() {
+    const mapEl = document.getElementById('parcelMap');
+    if (!mapEl || parcelMapInstance) return;
+
+    // Sinnar, Nashik Coordinates: 19.8510° N, 74.0010° E
+    const centerLat = 19.8510;
+    const centerLng = 74.0010;
+
+    parcelMapInstance = L.map('parcelMap', {
+      center: [centerLat, centerLng],
+      zoom: 16,
+      zoomControl: true,
+      attributionControl: false
+    });
+
+    // Satellite Imagery Layer (Esri World Imagery)
+    const esriSat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 19,
+      attribution: 'Esri World Imagery'
+    });
+
+    // OpenStreetMap Fallback Layer
+    const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19
+    });
+
+    esriSat.addTo(parcelMapInstance);
+
+    // Parcel Boundary Polygon matching Screenshot 1
+    // Polygon styled with emerald/cyan glowing border & semi-transparent fill
+    const parcelCoords = [
+      [19.8525, 73.9985],
+      [19.8540, 74.0005],
+      [19.8528, 74.0035],
+      [19.8495, 74.0030],
+      [19.8490, 73.9995]
+    ];
+
+    parcelPolygonLayer = L.polygon(parcelCoords, {
+      color: '#00e676',
+      weight: 3.5,
+      opacity: 0.95,
+      fillColor: '#00e676',
+      fillOpacity: 0.22,
+      dashArray: '2, 4'
+    }).addTo(parcelMapInstance);
+
+    // Custom Marker Label at Center matching Image 1
+    const centerIcon = L.divIcon({
+      className: 'custom-parcel-pin',
+      html: `
+        <div style="background: white; border: 2px solid #207E85; border-radius: 8px; padding: 4px 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2); text-align: center; min-width: 110px;">
+          <div style="font-size: 11px; font-weight: 800; color: #1e293b; font-family: monospace;">Survey No. <span id="pinSurveyNo">142/3</span></div>
+          <div style="font-size: 10px; font-weight: 600; color: #64748b;">Area: 45.2 Ha</div>
+        </div>
+      `,
+      iconSize: [120, 42],
+      iconAnchor: [60, 21]
+    });
+
+    L.marker([19.8512, 74.0010], { icon: centerIcon }).addTo(parcelMapInstance);
+
+    // Fit map bounds to parcel polygon with padding
+    parcelMapInstance.fitBounds(parcelPolygonLayer.getBounds(), { padding: [50, 50] });
+  }
+
+  function zoomToParcel() {
+    if (parcelMapInstance && parcelPolygonLayer) {
+      parcelMapInstance.fitBounds(parcelPolygonLayer.getBounds(), { padding: [60, 60], animate: true });
+    }
+  }
+
+  // ── Modal Interactions ───────────────────────────────────────────────────────
+  function openUploadModal() {
+    document.getElementById('uploadModal').classList.remove('hidden');
+  }
+
+  function closeUploadModal() {
+    document.getElementById('uploadModal').classList.add('hidden');
+    document.getElementById('uploadDocForm').reset();
+    document.getElementById('selectedFileName').classList.add('hidden');
+    document.getElementById('fileUploadPrompt').innerText = 'Tap to upload';
+  }
+
+  function handleFileSelected(input) {
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+      const fnEl = document.getElementById('selectedFileName');
+      fnEl.innerText = `${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+      fnEl.classList.remove('hidden');
+      document.getElementById('fileUploadPrompt').innerText = 'File selected';
+    }
+  }
+
+  // Upload document via decoupled REST API (POST /api/documents)
+  async function handleDocumentUpload(e) {
+    e.preventDefault();
+    const btnText = document.getElementById('btnUploadText');
+    const spinner = document.getElementById('uploadSpinner');
+    const submitBtn = document.getElementById('btnUploadSubmit');
+    const fileInput = document.getElementById('docFileInput');
+
+    if (!fileInput.files || !fileInput.files[0]) {
+      alert('Please select a file to upload.');
+      return;
+    }
+
+    try {
+      submitBtn.disabled = true;
+      btnText.innerText = 'AI Extracting...';
+      spinner.classList.remove('hidden');
+
+      const formData = new FormData();
+      formData.append('document', fileInput.files[0]);
+      formData.append('documentType', document.getElementById('uploadDocType').value);
+      formData.append('autoProcessAI', 'true');
+      formData.append('landParcelId', 'PARCEL-142-3');
+      formData.append('acquisitionRequestId', 'LA-2026-0245');
+
+      const res = await fetch('/api/documents', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || 'Upload failed');
+      }
+
+      closeUploadModal();
+      
+      // Auto-open review modal for newly uploaded document
+      const uploadedDoc = data.data.document;
+      openReviewModal(uploadedDoc.documentId, uploadedDoc.documentType, uploadedDoc.documentName || 'Uploaded Document');
+    } catch (err) {
+      alert(`Upload error: ${err.message}`);
+    } finally {
+      submitBtn.disabled = false;
+      btnText.innerText = 'Upload & Process';
+      spinner.classList.add('hidden');
+    }
+  }
+
+  // ── Review Modal Interactions ────────────────────────────────────────────────
+  async function openReviewModal(docId, docType, docName) {
+    document.getElementById('editDocId').value = docId;
+    document.getElementById('reviewDocMeta').innerText = `${docId} · ${docName || docType}`;
+    document.getElementById('previewDocTitle').innerText = `${docType.toLowerCase()}.pdf`;
+    document.getElementById('btnDocDownloadLink').href = `/api/documents/${docId}/file`;
+
+    // Fetch extraction fields via REST API
+    try {
+      const res = await fetch(`/api/documents/${docId}/extraction`);
+      if (res.ok) {
+        const payload = await res.json();
+        const ext = payload.data && payload.data.extraction;
+        if (ext && ext.fields) {
+          if (ext.fields.ownerName) document.getElementById('editOwnerName').value = ext.fields.ownerName.value;
+          if (ext.fields.surveyNumber) {
+            document.getElementById('editSurveyNumber').value = ext.fields.surveyNumber.value;
+            // If low confidence or suggestion exists, highlight alert
+            if (ext.fields.surveyNumber.isLowConfidence || ext.fields.surveyNumber.suggestedCorrection) {
+              document.getElementById('surveyAlertHint').classList.remove('hidden');
+            } else {
+              document.getElementById('surveyAlertHint').classList.add('hidden');
+            }
+          }
+          if (ext.fields.village) document.getElementById('editVillage').value = ext.fields.village.value;
+          if (ext.fields.district) document.getElementById('editDistrict').value = ext.fields.district.value;
+          if (ext.fields.landArea) document.getElementById('editLandArea').value = ext.fields.landArea.value;
+        }
+      }
+    } catch (err) {
+      console.warn('Could not fetch latest extraction from server:', err);
+    }
+
+    switchReviewTab('extracted');
+    document.getElementById('reviewModal').classList.remove('hidden');
+  }
+
+  function closeReviewModal() {
+    document.getElementById('reviewModal').classList.add('hidden');
+  }
+
+  function switchReviewTab(tab) {
+    const btnOrig = document.getElementById('tabBtnOriginal');
+    const btnExtr = document.getElementById('tabBtnExtracted');
+    const contentOrig = document.getElementById('tabOriginalContent');
+    const contentExtr = document.getElementById('tabExtractedContent');
+
+    if (tab === 'original') {
+      btnOrig.className = 'py-3 px-4 text-xs font-bold text-[#207E85] border-b-2 border-[#207E85] transition-colors flex items-center gap-1.5';
+      btnExtr.className = 'py-3 px-4 text-xs font-bold text-slate-500 border-b-2 border-transparent hover:text-slate-700 transition-colors flex items-center gap-1.5';
+      contentOrig.classList.remove('hidden');
+      contentExtr.classList.add('hidden');
+    } else {
+      btnExtr.className = 'py-3 px-4 text-xs font-bold text-[#207E85] border-b-2 border-[#207E85] transition-colors flex items-center gap-1.5';
+      btnOrig.className = 'py-3 px-4 text-xs font-bold text-slate-500 border-b-2 border-transparent hover:text-slate-700 transition-colors flex items-center gap-1.5';
+      contentExtr.classList.remove('hidden');
+      contentOrig.classList.add('hidden');
+    }
+  }
+
+  function adjustDocZoom(delta) {
+    docCurrentZoom = Math.max(0.6, Math.min(2.0, docCurrentZoom + delta));
+    const wrapper = document.getElementById('docViewerWrapper');
+    if (wrapper) {
+      wrapper.style.transform = `scale(${docCurrentZoom})`;
+    }
+  }
+
+  function applySuggestedCorrection(val) {
+    const input = document.getElementById('editSurveyNumber');
+    input.value = val;
+    input.classList.remove('border-red-300');
+    input.classList.add('border-emerald-500', 'bg-emerald-50/50');
+  }
+
+  // Submit User Correction and Finalize Verification
+  async function handleCorrectionSubmit(e) {
+    e.preventDefault();
+    const docId = document.getElementById('editDocId').value;
+    const correctedSurveyNumber = document.getElementById('editSurveyNumber').value;
+    const village = document.getElementById('editVillage').value;
+    const district = document.getElementById('editDistrict').value;
+    const landArea = document.getElementById('editLandArea').value;
+
+    const btnText = document.getElementById('btnSaveText');
+    const spinner = document.getElementById('saveSpinner');
+    const submitBtn = document.getElementById('btnSaveSubmit');
+
+    try {
+      submitBtn.disabled = true;
+      btnText.innerText = 'Submitting & Verifying...';
+      spinner.classList.remove('hidden');
+
+      // 1. Submit Correction to immutable collection
+      const corrRes = await fetch(`/api/documents/${docId}/corrections`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          field: 'surveyNumber',
+          correctedValue: correctedSurveyNumber,
+          reason: 'Corrected from original 7/12 extract ground record'
+        })
+      });
+
+      if (!corrRes.ok) {
+        const errData = await corrRes.json();
+        console.warn('Correction submission notice:', errData);
+      }
+
+      // 2. Finalize verification on document
+      const verifyRes = await fetch(`/api/documents/${docId}/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          remarks: 'Land Owner reviewed and verified with Ground Survey Record',
+          overrideFields: {
+            surveyNumber: correctedSurveyNumber,
+            village,
+            district,
+            landArea: parseFloat(landArea)
+          }
+        })
+      });
+
+      // 3. Update UI synchronously
+      document.getElementById('cardSurveyNumber').innerText = correctedSurveyNumber;
+      document.getElementById('mapSurveyNoText').innerText = correctedSurveyNumber;
+      document.getElementById('cardVillage').innerText = village;
+      document.getElementById('cardDistrict').innerText = district;
+      document.getElementById('cardLandArea').innerText = `${landArea} Ha`;
+      const pinLabel = document.getElementById('pinSurveyNo');
+      if (pinLabel) pinLabel.innerText = correctedSurveyNumber;
+
+      closeReviewModal();
+      alert(`Success! Survey Number updated to ${correctedSurveyNumber} and verified in official land registry.`);
+      window.location.reload();
+    } catch (err) {
+      alert(`Error submitting correction: ${err.message}`);
+    } finally {
+      submitBtn.disabled = false;
+      btnText.innerText = 'Save & Submit';
+      spinner.classList.add('hidden');
+    }
+  }
+</script>
+
+        </div>
+      </main>
+
+      <!-- Footer -->
+      <footer class="bg-white border-t border-slate-200 text-slate-500 py-6 text-xs mt-auto">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+    <div>
+      <span class="font-semibold text-slate-700">LRVS — Land Record Verification System</span>
+      <span class="mx-2 text-slate-300">|</span>
+      <span>Team BLAZE | SIH26016</span>
+    </div>
+    <div class="flex items-center gap-4 text-slate-400">
+      <span>Official Government Demonstration Portal</span>
+      <span>•</span>
+      <a href="/system/status" class="hover:text-blue-600 transition">System Status</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+  
+
+  <!-- Main client JS -->
+  <script src="/js/main.js"></script>
+</body>
+</html>
