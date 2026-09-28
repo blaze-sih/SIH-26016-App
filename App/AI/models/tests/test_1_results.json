@@ -1,0 +1,370 @@
+{
+  "Gemini_Generated_Image_pegaf5pegaf5pega.png": {
+    "district": "भारणे",
+    "taluka": "सारी",
+    "village": "भारणे",
+    "village_code": "45097",
+    "survey_number": "1912",
+    "khata_number": "1912",
+    "occupancy_class": "पालतू सुनिल पाटील, अर्जन शंकर पाटील, पालतू महरुई सुनिल, पाटील (देटक्सवे)",
+    "owners": [
+      "पालतू सुनिल पाटील",
+      "अर्जन शंकर पाटील",
+      "पालतू महरुई सुनिल",
+      "पाटील (देटक्सवे)"
+    ],
+    "area": {
+      "unit": "हे.आर.चौ.मी",
+      "total": "1.9520",
+      "cultivable": "1.9520",
+      "uncultivable": "0.3580"
+    },
+    "assessment": "1997",
+    "encumbrances": null,
+    "last_mutation_number": "1912/1997"
+  },
+  "Gemini_Generated_Image_96i1bc96i1bc96i1.png": {
+    "district": "पुणे",
+    "taluka": "मुखळी",
+    "village": "बाकळ",
+    "village_code": "14331",
+    "survey_number": "58",
+    "khata_number": "7012",
+    "occupancy_class": "मोकळ स्थान यावला",
+    "owners": [
+      "पाटील विष्णू राजत",
+      "संजीव राजत"
+    ],
+    "area": {
+      "unit": "हे.आर.चौ.मी",
+      "total": "3.84",
+      "cultivable": "3.34",
+      "uncultivable": "0.50"
+    },
+    "assessment": "प्रतिलत संपत्तर - नाही.",
+    "encumbrances": null,
+    "last_mutation_number": "57/09/2018"
+  },
+  "7-12-sample-of-Maharashtra_page-0002.jpg": {
+    "district": "पुणे",
+    "taluka": "माळ",
+    "village": "मोरेवे",
+    "village_code": "456023",
+    "survey_number": "312",
+    "khata_number": "",
+    "occupancy_class": "",
+    "owners": [
+      "भाट भाई भी",
+      "भाट भाई भी"
+    ],
+    "area": {
+      "unit": "हे.आर.चौ.मी",
+      "total": "0.9260",
+      "cultivable": "0.9260",
+      "uncultivable": "0.9260"
+    },
+    "assessment": "",
+    "encumbrances": "",
+    "last_mutation_number": ""
+  },
+  "ChatGPT Image Sep 27, 2026, 09_17_40 PM.png": {
+    "district": "नाशिक",
+    "taluka": "सिंगंगर",
+    "village": "पिपळगाव (खुर्द)",
+    "village_code": "275",
+    "survey_number": "1957",
+    "khata_number": "(195)",
+    "occupancy_class": "कृषी खेत व इतर अधिकार",
+    "owners": [
+      "शिदे गणेश रामचंद्र",
+      "शिदे सुभदा गणेश"
+    ],
+    "area": {
+      "unit": "हे.आर.चौ.मी",
+      "total": "0.5600",
+      "cultivable": "0.4600",
+      "uncultivable": "0.1000"
+    },
+    "assessment": "12/06/2022",
+    "encumbrances": "नाही.",
+    "last_mutation_number": "1021"
+  },
+  "Gemini_Generated_Image_3tzufo3tzufo3tzu.png": {
+    "error": "Failed to parse",
+    "raw": "```json\n[\n    {\n        \"district\": \"कोल्हापूर\",\n        \"taluka\": \"कोल्हापूर\",\n        \"village\": \"कोल्हापूर\",\n        \"village_code\": \"0107\",\n        \"survey_number\": \"107\",\n        \"khata_number\": \"107\",\n        \"occupancy_class\": \"107\",\n        \"owners\": [\n            \"कोल्हापूर जिल्हा आयपीएस अधिकारी\",\n            \"कोल्हापूर जिल्हा आयपीएस अधिकारी\"\n        ],\n        \"area\": {\n            \"unit\": \"हे.आर.चौ.मी\",\n            \"total\": \"38.00\",\n            \"cultivable\": \"38.00\",\n            \"uncultivable\": \"0.00\"\n        },\n        \"assessment\": \"107\",\n        \"encumbrances\": null,\n        \"last_mutation_number\": \"107\"\n    },\n    {\n        \"district\": \"सांगोली\",\n        \"taluka\": \"सांगोली\",\n        \"village\": \"सांगोली\",\n        \"village_code\": \"0103\",\n        \"survey_number\": \"103\",\n        \"khata_number\": \"103\",\n        \"occupancy_class\": \"103\",\n        \"owners\": [\n            \"सांगोली जिल्हा आयपीएस अधिकारी\",\n            \"सांगोली जिल्हा आयपीएस अधिकारी\"\n        ],\n        \"area\": {\n            \"unit\": \"हे.आर.चौ.मी\",\n            \"total\": \"10.20\",\n            \"cultivable\": \"10.20\",\n            \"uncultivable\": \"0.00\"\n        },\n        \"assessment\": \"103\",\n        \"encumbrances\": null,\n        \"last_mutation_number\": \"103\"\n    },\n    {\n        \"district\": \"करमाळा\",\n        \"taluka\": \"करमाळा\",\n        \"village\": \"करमाळा\",\n        \"village_code\": \"0106\",\n        \"survey_number\": \"106\",\n        \"khata_number\": \"106\",\n        \"occupancy_class\": \"106\",\n        \"owners\": [\n            \"करमाळा जिल्हा आयपीएस अधिकारी\",\n            \"करमाळा जिल्हा आयपीएस अधिकारी\"\n        ],\n        \"area\": {\n            \"unit\": \"हे.आर.चौ.मी\",\n"
+  },
+  "Gemini_Generated_Image_jw0eecjw0eecjw0e.png": {
+    "district": "भोगवद्वार",
+    "taluka": "सारी",
+    "village": "वडेवर",
+    "village_code": "580910",
+    "survey_number": "194",
+    "khata_number": "194",
+    "occupancy_class": "सामान्य",
+    "owners": [
+      "पाटील सुमिल दानात्रय",
+      "पाटील माधुरी पाटील"
+    ],
+    "area": {
+      "unit": "हे.आर.चौ.मी",
+      "total": "9.660",
+      "cultivable": "9.620",
+      "uncultivable": "360"
+    },
+    "assessment": "सामान्य",
+    "encumbrances": [
+      "Bank of India Mortgage",
+      "Joint ownership dispute - ongoing"
+    ],
+    "last_mutation_number": "1133"
+  },
+  "Gemini_Generated_Image_siypqvsiypqvsiyp (1).png": {
+    "district": "पुणे",
+    "taluka": "सारी",
+    "village": "पिपळगाव",
+    "village_code": "689721",
+    "survey_number": "689",
+    "khata_number": "239",
+    "occupancy_class": "कुलावे नाव व खंज",
+    "owners": [
+      "विमलबाई देवराम पाटील",
+      "बॅंक ऑफ बोडो कर्ज"
+    ],
+    "area": {
+      "unit": "हे.आर.चौ.मी",
+      "total": "29.20",
+      "cultivable": "2.3520",
+      "uncultivable": "0.3580"
+    },
+    "assessment": null,
+    "encumbrances": [
+      "पिपळगाव शिवार",
+      "ननुमन पाटीर",
+      "प्रीम वार"
+    ],
+    "last_mutation_number": "6249/2024"
+  },
+  "Gemini_Generated_Image_ler5dwler5dwler5.png": {
+    "district": "भोगद्वार",
+    "taluka": "साकी",
+    "village": "नम्दामला",
+    "village_code": "471311",
+    "survey_number": "195",
+    "khata_number": "195",
+    "occupancy_class": "हे.आर.चौ.मी",
+    "owners": [
+      "पाटील सुनील दासाय",
+      "माधुरी पाटील"
+    ],
+    "area": {
+      "unit": "हे.आर.चौ.मी",
+      "total": "1.66",
+      "cultivable": "1/4 हिस्सा",
+      "uncultivable": "1/4 हिस्सा"
+    },
+    "assessment": "1950",
+    "encumbrances": [
+      "Bank of India Mortgage",
+      "Joint ownership dispute - ongoing"
+    ],
+    "last_mutation_number": "1950"
+  },
+  "Gemini_Generated_Image_wr6wb6wr6wb6wr6w.png": {
+    "district": "सारी",
+    "taluka": "सारी",
+    "village": "चुके",
+    "village_code": "611",
+    "survey_number": "45",
+    "khata_number": "2.3520",
+    "occupancy_class": "हिस्सा",
+    "owners": [
+      "स्मेश्वर सोपान सोनावाने",
+      "रेखा स्मेश्वर सोनावाने"
+    ],
+    "area": {
+      "unit": "हे.आर.चौ.मी",
+      "total": "39.20",
+      "cultivable": "0.3580",
+      "uncultivable": "0"
+    },
+    "assessment": "",
+    "encumbrances": "",
+    "last_mutation_number": ""
+  },
+  "Gemini_Generated_Image_nklcvqnklcvqnklc.png": {
+    "district": "भोगला बघती",
+    "taluka": "भोगदारदर सर्ग-1",
+    "village": "भोगदारदर",
+    "village_code": "14331",
+    "survey_number": "90",
+    "khata_number": "1",
+    "occupancy_class": "सामाजिक खाता",
+    "owners": [
+      "कुंभार विनायक तुकाराम",
+      "सतीश कुंभार"
+    ],
+    "area": {
+      "unit": "हे.आर.चौ.मी",
+      "total": "2.37",
+      "cultivable": "2.36",
+      "uncultivable": "0.01"
+    },
+    "assessment": "1933",
+    "encumbrances": null,
+    "last_mutation_number": "1933/1933"
+  },
+  "Gemini_Generated_Image_jrojbjjrojbjjroj.png": {
+    "error": "Failed to parse",
+    "raw": "```json\n[\n    {\n        \"district\": \"धुळे\",\n        \"taluka\": \"शिरपूर\",\n        \"village\": \"खडके\",\n        \"village_code\": \"567100\",\n        \"survey_number\": \"201\",\n        \"khata_number\": \"521\",\n        \"occupancy_class\": \"नीलिमा रामदास पाटील\",\n        \"owners\": [\n            \"नीलिमा रामदास पाटील\",\n            \"विश्राम रामदास पाटील\"\n        ],\n        \"area\": {\n            \"unit\": \"हे.आर.चौ.मी\",\n            \"total\": \"1.9220\",\n            \"cultivable\": \"1.9000\",\n            \"uncultivable\": \"0.9220\"\n        },\n        \"assessment\": \"1.9000\",\n        \"encumbrances\": null,\n        \"last_mutation_number\": \"5231\"\n    },\n    {\n        \"district\": \"धुळे\",\n        \"taluka\": \"शिरपूर\",\n        \"village\": \"खडके\",\n        \"village_code\": \"567100\",\n        \"survey_number\": \"201\",\n        \"khata_number\": \"601\",\n        \"occupancy_class\": \"नीलिमा रामदास पाटील\",\n        \"owners\": [\n            \"नीलिमा रामदास पाटील\",\n            \"विश्राम रामदास पाटील\"\n        ],\n        \"area\": {\n            \"unit\": \"हे.आर.चौ.मी\",\n            \"total\": \"1.9220\",\n            \"cultivable\": \"1.9000\",\n            \"uncultivable\": \"0.9220\"\n        },\n        \"assessment\": \"1.9000\",\n        \"encumbrances\": null,\n        \"last_mutation_number\": \"6010\"\n    }\n]\n```"
+  },
+  "Gemini_Generated_Image_p236o7p236o7p236.png": {
+    "district": "पुणे",
+    "taluka": "बारामती",
+    "village": "वागदरा",
+    "village_code": "110012",
+    "survey_number": "198",
+    "khata_number": "198",
+    "occupancy_class": "पाटील सुनिल स्तंचंद्र---सामाईक क्षेत्र---1.7220",
+    "owners": [
+      "पाटील सुनिल स्तंचंद्र",
+      "काळे सुनिता सुरेश"
+    ],
+    "area": {
+      "unit": "हे.आर.चौ.मी",
+      "total": "25.30",
+      "cultivable": "1.7220",
+      "uncultivable": "8.57"
+    },
+    "assessment": "1.7220",
+    "encumbrances": null,
+    "last_mutation_number": "519"
+  },
+  "Gemini_Generated_Image_enj0ouenj0ouenj0.png": {
+    "district": "धुळे",
+    "taluka": "शिरपूर",
+    "village": "खडके",
+    "village_code": "567100",
+    "survey_number": "201",
+    "khata_number": "521, 601",
+    "occupancy_class": null,
+    "owners": [
+      {
+        "name": "विलास रामदास पाटील"
+      },
+      {
+        "name": "विजया विलास पाटील"
+      }
+    ],
+    "area": {
+      "unit": "हे.आर.चौ.मी",
+      "total": "1.6420",
+      "cultivable": "0.5200",
+      "uncultivable": "1.1220"
+    },
+    "assessment": null,
+    "encumbrances": [
+      {
+        "description": "महाराष्ट्र सार्वजनिक बँक - स्टेट बँक ऑफ इंडिया, शिरपूर शाखा, वागमाटी सरिवाळ ऑफ सार्वजनिक बँक तो समार देस्कचाचिम, मात तिता: 30/06/2016"
+      },
+      {
+        "description": "महाराष्ट्र सार्वजनिक बँक - स्टेट बँक ऑफ इंडिया, शिरपूर शाखा, आगायाटी सरिवाळ ऑफ सार्वजनिक बँक तो समार देस्कचाचिम, मात तिता: 30/06/2016"
+      }
+    ],
+    "last_mutation_number": null
+  },
+  "Gemini_Generated_Image_siypqvsiypqvsiyp.png": {
+    "district": "पुणे",
+    "taluka": "सारी",
+    "village": "पिपळगाव",
+    "village_code": "689721",
+    "survey_number": "689",
+    "khata_number": "239",
+    "occupancy_class": "कुलावे नाव व खंज",
+    "owners": [
+      "विमलबाई देवराम पाटील",
+      "बॅंक ऑफ बोडो कर्ज"
+    ],
+    "area": {
+      "unit": "हे.आर.चौ.मी",
+      "total": "29.20",
+      "cultivable": "2.3520",
+      "uncultivable": "0.3580"
+    },
+    "assessment": "",
+    "encumbrances": [
+      "पिपळगाव शिवार",
+      "ननुमन पाटीर",
+      "प्रीम वार"
+    ],
+    "last_mutation_number": "6249/2024"
+  },
+  "7-12-sample-of-Maharashtra_page-0001.jpg": {
+    "district": "पुणे",
+    "taluka": "माळव",
+    "village": "गावनुना साळ",
+    "village_code": "15023",
+    "survey_number": "312",
+    "khata_number": "1",
+    "occupancy_class": "कुळ आरक्षण अधिकार",
+    "owners": [
+      "मोहनीश रमेश चाबला",
+      "इसर अधिकार"
+    ],
+    "area": {
+      "unit": "हे.आर.चौ.मी",
+      "total": "0.3960",
+      "cultivable": "0.39",
+      "uncultivable": "0.0060"
+    },
+    "assessment": "96/09/2019",
+    "encumbrances": null,
+    "last_mutation_number": null
+  },
+  "ChatGPT Image Sep 27, 2026, 09_17_31 PM.png": {
+    "error": "Failed to parse",
+    "raw": "```json\n[\n    {\n        \"district\": \"सोलापूर\",\n        \"taluka\": \"सोलापूर\",\n        \"village\": \"कोंकणे\",\n        \"village_code\": \"203\",\n        \"survey_number\": \"452\",\n        \"khata_number\": \"198\",\n        \"occupancy_class\": \"कृषक\",\n        \"owners\": [\n            \"कोंकणे (सुरु)\",\n            \"नाशिक\"\n        ],\n        \"area\": {\n            \"unit\": \"हे.आर.चौ.मी\",\n            \"total\": \"11.20\",\n            \"cultivable\": \"10.50\",\n            \"uncultivable\": \"0.70\"\n        },\n        \"assessment\": \"1,400\",\n        \"encumbrances\": null,\n        \"last_mutation_number\": \"201\"\n    },\n    {\n        \"district\": \"सोलापूर\",\n        \"taluka\": \"सोलापूर\",\n        \"village\": \"सामोला\",\n        \"village_code\": \"203\",\n        \"survey_number\": \"452\",\n        \"khata_number\": \"198\",\n        \"occupancy_class\": \"कृषक\",\n        \"owners\": [\n            \"सामोला पालने\",\n            \"सामोला पालने\"\n        ],\n        \"area\": {\n            \"unit\": \"हे.आर.चौ.मी\",\n            \"total\": \"12.00\",\n            \"cultivable\": \"11.20\",\n            \"uncultivable\": \"0.80\"\n        },\n        \"assessment\": \"1,400\",\n        \"encumbrances\": null,\n        \"last_mutation_number\": \"203\"\n    },\n    {\n        \"district\": \"सोलापूर\",\n        \"taluka\": \"कर्माळ\",\n        \"village\": \"कर्माळ\",\n        \"village_code\": \"406\",\n        \"survey_number\": \"310\",\n        \"khata_number\": \"310\",\n        \"occupancy_class\": \"कृषक\",\n        \"owners\": [\n            \"कर्माळ जांतर उपाध्याय\",\n            \"कर्माळ जांतर उपाध्याय\"\n        ],\n        \"area\": {\n            \"unit\": \"हे.आर.चौ.मी\",\n            \"total\": \"7.30\",\n            \"cultivable\": \"7.30\",\n            \"uncultivable\": \"0.00\"\n        },\n        \"assessment\": \"1,400\",\n        \"encumbrances\": null,\n        \"last_mutation_number\": \"406\"\n    },\n    {\n        \"district\": \"रायवाड\",\n        \"taluka\": \"रायवाड\",\n        \"village\": \"भेळवी\",\n        \"village_code\": \"692\",\n        \"survey_number\": \"191\",\n        \"khata_number\": \"191\",\n        \"occupancy_class\": \"कृषक\",\n        \"owners\": [\n            \"भेळवी\",\n            \"भ"
+  },
+  "Gemini_Generated_Image_uxuu5buxuu5buxuu.png": {
+    "district": "चूके",
+    "taluka": "सारी",
+    "village": "पिंपळगाव",
+    "village_code": "624910",
+    "survey_number": "689",
+    "khata_number": "769",
+    "occupancy_class": "कुलवे नाव व खंज",
+    "owners": [
+      "विमलबाई देवराम पाटील"
+    ],
+    "area": {
+      "unit": "हे.आर.चौ.मी",
+      "total": "2.3520",
+      "cultivable": "29.20",
+      "uncultivable": "0.3580"
+    },
+    "assessment": null,
+    "encumbrances": null,
+    "last_mutation_number": null
+  },
+  "ChatGPT Image Sep 27, 2026, 09_17_49 PM.png": {
+    "district": "घुरे",
+    "taluka": "सारी",
+    "village": "वडनेर",
+    "village_code": "460901",
+    "survey_number": "175",
+    "khata_number": "175",
+    "occupancy_class": "पाटील",
+    "owners": [
+      "पाटील सुनील चुनाळय",
+      "पाटील महादुरी चुनाळय"
+    ],
+    "area": {
+      "unit": "हे.आर.चौ.मी",
+      "total": "1.66.40",
+      "cultivable": "1.52.30",
+      "uncultivable": "0.14.10"
+    },
+    "assessment": "1.60.40",
+    "encumbrances": null,
+    "last_mutation_number": "(5231)"
+  }
+}
