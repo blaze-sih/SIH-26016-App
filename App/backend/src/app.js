@@ -142,7 +142,7 @@ app.get('/api/health', (_req, res) => {
   const dbStatus =
     dbState === 1 ? 'UP' : dbState === 2 ? 'CONNECTING' : 'DOWN';
 
-  res.status(dbStatus === 'DOWN' ? 503 : 200).json(
+  res.status(200).json(
     success('LRVS backend is running', {
       service: 'lrvs-backend',
       version: '1.0.0',
@@ -233,14 +233,21 @@ app.use(errorMiddleware);
 // ── Database connection & server start ───────────────────────────────────────
 const PORT = process.env.PORT || 9000;
 
-async function startServer() {
+async function connectWithRetry() {
+  const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/sih26016';
   try {
-    const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/sih26016';
     await mongoose.connect(mongoUri, {
-      serverSelectionTimeoutMS: 15000,
+      serverSelectionTimeoutMS: 10000,
     });
     logger.info('✅ MongoDB connected', { uri: (process.env.MONGO_URI || process.env.MONGODB_URI) ? 'Configured (Atlas)' : 'Default local' });
+  } catch (err) {
+    logger.warn('⚠️ MongoDB connection attempt failed, will retry in 5s...', { error: err.message });
+    setTimeout(connectWithRetry, 5000);
+  }
+}
 
+async function startServer() {
+  try {
     const fs = require('fs');
     const uploadDir = path.join(
       __dirname,
@@ -265,6 +272,9 @@ async function startServer() {
         web: `/login`,
       });
     });
+
+    // Initiate MongoDB connection with automatic retry
+    connectWithRetry();
 
     // Graceful shutdown
     process.on('SIGTERM', () => {
