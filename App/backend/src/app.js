@@ -69,9 +69,10 @@ app.use(
   })
 );
 
+const allowedOrigin = process.env.CORS_ORIGIN;
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || '*',
+    origin: allowedOrigin && allowedOrigin !== '*' ? allowedOrigin : true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
@@ -235,9 +236,9 @@ const PORT = process.env.PORT || 9000;
 async function startServer() {
   try {
     await mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/sih26016', {
-      serverSelectionTimeoutMS: 5000,
+      serverSelectionTimeoutMS: 15000,
     });
-    logger.info('✅ MongoDB connected', { uri: process.env.MONGO_URI });
+    logger.info('✅ MongoDB connected', { uri: process.env.MONGO_URI ? 'Configured' : 'Default local' });
 
     const fs = require('fs');
     const uploadDir = path.join(
@@ -253,12 +254,14 @@ async function startServer() {
       fs.mkdirSync(documentsDir, { recursive: true });
     }
 
-    const server = app.listen(PORT, () => {
-      logger.info(`🚀 LRVS Backend running on port ${PORT}`, {
+    const HOST = '0.0.0.0';
+    const server = app.listen(PORT, HOST, () => {
+      logger.info(`🚀 LRVS Backend running on http://${HOST}:${PORT}`, {
         port: PORT,
+        host: HOST,
         env: process.env.NODE_ENV,
-        health: `http://localhost:${PORT}/api/health`,
-        web: `http://localhost:${PORT}/login`,
+        health: `/api/health`,
+        web: `/login`,
       });
     });
 

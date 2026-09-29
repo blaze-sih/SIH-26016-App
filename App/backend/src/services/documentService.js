@@ -25,6 +25,7 @@ const {
   ROLES,
   AUDIT_ACTIONS,
   ENTITY_TYPES,
+  ACQUISITION_STATUS,
 } = require('../utils/constants');
 const logger = require('../utils/logger');
 

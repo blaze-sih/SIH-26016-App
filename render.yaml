@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: sih26016-lrvs
+    runtime: node
+    plan: free
+    rootDir: App/backend
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: BLOCKCHAIN_MOCK
+        value: "true"
+      - key: CORS_ORIGIN
+        value: "*"
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: UPLOAD_DIR
+        value: uploads
+      - key: DOCUMENT_STORAGE_PROVIDER
+        value: local
+      - key: DOCUMENT_STORAGE_PATH
+        value: storage/documents
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
