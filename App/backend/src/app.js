@@ -235,10 +235,11 @@ const PORT = process.env.PORT || 9000;
 
 async function startServer() {
   try {
-    await mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/sih26016', {
+    const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/sih26016';
+    await mongoose.connect(mongoUri, {
       serverSelectionTimeoutMS: 15000,
     });
-    logger.info('✅ MongoDB connected', { uri: process.env.MONGO_URI ? 'Configured' : 'Default local' });
+    logger.info('✅ MongoDB connected', { uri: (process.env.MONGO_URI || process.env.MONGODB_URI) ? 'Configured (Atlas)' : 'Default local' });
 
     const fs = require('fs');
     const uploadDir = path.join(
