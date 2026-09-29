@@ -125,7 +125,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(
   morgan('combined', {
     stream: { write: (msg) => logger.http(msg.trim()) },
-    skip: (req) => req.url === '/api/health',
+    skip: (req) => req.url === '/api/health' || req.url === '/health',
   })
 );
 
@@ -136,8 +136,8 @@ app.use('/uploads', (_req, res) => {
   return res.status(403).json(error('Direct access to uploads directory is forbidden. Use authenticated document endpoints.', { code: 'FORBIDDEN' }, 403));
 });
 
-// ── Health endpoint ──────────────────────────────────────────────────────────
-app.get('/api/health', (_req, res) => {
+// ── Health endpoints ──────────────────────────────────────────────────────────
+const healthHandler = (_req, res) => {
   const dbState = mongoose.connection.readyState;
   const dbStatus =
     dbState === 1 ? 'UP' : dbState === 2 ? 'CONNECTING' : 'DOWN';
@@ -152,7 +152,10 @@ app.get('/api/health', (_req, res) => {
       database: dbStatus,
     })
   );
-});
+};
+
+app.get('/api/health', healthHandler);
+app.get('/health', healthHandler);
 
 // ── System status endpoint ──────────────────────────────────────────────────
 app.get('/api/system/status', async (_req, res) => {
