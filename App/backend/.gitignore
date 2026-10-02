@@ -1,8 +1,12 @@
 node_modules/
 .env
+.env.*
+!.env.example
 dist/
 build/
 *.log
 logs/
 coverage/
 .nyc_output/
+uploads/
+storage/

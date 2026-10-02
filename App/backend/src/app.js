@@ -69,9 +69,10 @@ app.use(
   })
 );
 
+const allowedOrigin = process.env.CORS_ORIGIN;
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || '*',
+    origin: allowedOrigin && allowedOrigin !== '*' ? allowedOrigin : true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
@@ -124,7 +125,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(
   morgan('combined', {
     stream: { write: (msg) => logger.http(msg.trim()) },
-    skip: (req) => req.url === '/api/health',
+    skip: (req) => req.url === '/api/health' || req.url === '/health',
   })
 );
 
@@ -135,13 +136,13 @@ app.use('/uploads', (_req, res) => {
   return res.status(403).json(error('Direct access to uploads directory is forbidden. Use authenticated document endpoints.', { code: 'FORBIDDEN' }, 403));
 });
 
-// ── Health endpoint ──────────────────────────────────────────────────────────
-app.get('/api/health', (_req, res) => {
+// ── Health endpoints ──────────────────────────────────────────────────────────
+const healthHandler = (_req, res) => {
   const dbState = mongoose.connection.readyState;
   const dbStatus =
     dbState === 1 ? 'UP' : dbState === 2 ? 'CONNECTING' : 'DOWN';
 
-  res.status(dbStatus === 'DOWN' ? 503 : 200).json(
+  res.status(200).json(
     success('LRVS backend is running', {
       service: 'lrvs-backend',
       version: '1.0.0',
@@ -151,7 +152,10 @@ app.get('/api/health', (_req, res) => {
       database: dbStatus,
     })
   );
-});
+};
+
+app.get('/api/health', healthHandler);
+app.get('/health', healthHandler);
 
 // ── System status endpoint ──────────────────────────────────────────────────
 app.get('/api/system/status', async (_req, res) => {
@@ -232,13 +236,21 @@ app.use(errorMiddleware);
 // ── Database connection & server start ───────────────────────────────────────
 const PORT = process.env.PORT || 9000;
 
+async function connectWithRetry() {
+  const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/sih26016';
+  try {
+    await mongoose.connect(mongoUri, {
+      serverSelectionTimeoutMS: 10000,
+    });
+    logger.info('✅ MongoDB connected', { uri: (process.env.MONGO_URI || process.env.MONGODB_URI) ? 'Configured (Atlas)' : 'Default local' });
+  } catch (err) {
+    logger.warn('⚠️ MongoDB connection attempt failed, will retry in 5s...', { error: err.message });
+    setTimeout(connectWithRetry, 5000);
+  }
+}
+
 async function startServer() {
   try {
-    await mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/sih26016', {
-      serverSelectionTimeoutMS: 5000,
-    });
-    logger.info('✅ MongoDB connected', { uri: process.env.MONGO_URI });
-
     const fs = require('fs');
     const uploadDir = path.join(
       __dirname,
@@ -253,14 +265,19 @@ async function startServer() {
       fs.mkdirSync(documentsDir, { recursive: true });
     }
 
-    const server = app.listen(PORT, () => {
-      logger.info(`🚀 LRVS Backend running on port ${PORT}`, {
+    const HOST = '0.0.0.0';
+    const server = app.listen(PORT, HOST, () => {
+      logger.info(`🚀 LRVS Backend running on http://${HOST}:${PORT}`, {
         port: PORT,
+        host: HOST,
         env: process.env.NODE_ENV,
-        health: `http://localhost:${PORT}/api/health`,
-        web: `http://localhost:${PORT}/login`,
+        health: `/api/health`,
+        web: `/login`,
       });
     });
+
+    // Initiate MongoDB connection with automatic retry
+    connectWithRetry();
 
     // Graceful shutdown
     process.on('SIGTERM', () => {
