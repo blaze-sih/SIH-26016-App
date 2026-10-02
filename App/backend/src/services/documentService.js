@@ -308,98 +308,26 @@ async function processAIDocument(documentId) {
     throw err;
   }
 
-  doc.processingStatus = DOCUMENT_PROCESSING_STATUS.PROCESSING;
-  doc.aiProcessingStatus = 'PROCESSING';
-  await doc.save();
-
+  // Make sure we have the aiService loaded
+  const aiService = require('./aiService');
+  
   try {
-    // Generate domain-specific extraction based on document type & parcel reference
-    // Matches the Sinnar, Nashik 7/12 extract test case from the specification
-    const is712 = doc.documentType === '7_12_EXTRACT' || doc.documentType === '712_EXTRACT';
-
-    const fields = is712
-      ? {
-          ownerName: {
-            value: 'Ramesh Patil',
-            confidence: 0.97,
-            isLowConfidence: false,
-          },
-          surveyNumber: {
-            value: '142/3',
-            confidence: 0.61, // Low confidence flagged for review
-            isLowConfidence: true,
-            suggestedCorrection: '142/8',
-          },
-          village: {
-            value: 'Sinnar',
-            confidence: 0.96,
-            isLowConfidence: false,
-          },
-          district: {
-            value: 'Nashik',
-            confidence: 0.99,
-            isLowConfidence: false,
-          },
-          landArea: {
-            value: 45.2,
-            unit: 'Hectare',
-            confidence: 0.94,
-            isLowConfidence: false,
-          },
-        }
-      : {
-          ownerName: {
-            value: 'Ramesh Patil',
-            confidence: 0.95,
-            isLowConfidence: false,
-          },
-          surveyNumber: {
-            value: '142/3',
-            confidence: 0.92,
-            isLowConfidence: false,
-          },
-          village: {
-            value: 'Sinnar',
-            confidence: 0.95,
-            isLowConfidence: false,
-          },
-          district: {
-            value: 'Nashik',
-            confidence: 0.98,
-            isLowConfidence: false,
-          },
-          landArea: {
-            value: 45.2,
-            unit: 'Hectare',
-            confidence: 0.95,
-            isLowConfidence: false,
-          },
-        };
-
-    // Store extraction in separate DocumentExtraction collection
-    const extraction = new DocumentExtraction({
-      documentId: doc.documentId,
-      extractionVersion: doc.currentVersion,
-      modelName: 'lrvs-ai-vision-v2',
-      status: 'COMPLETED',
-      fields,
-      rawResponse: {
-        documentId: doc.documentId,
-        storageKey: doc.storageKey,
-        documentType: doc.documentType,
-        extractedAt: new Date().toISOString(),
-      },
-    });
-
-    await extraction.save();
-
-    doc.currentExtractionId = extraction._id;
-    doc.aiProcessingStatus = 'COMPLETED';
-    doc.processingStatus = is712 && fields.surveyNumber.isLowConfidence
-      ? DOCUMENT_PROCESSING_STATUS.REVIEW_REQUIRED
-      : DOCUMENT_PROCESSING_STATUS.AI_EXTRACTED;
-
-    await doc.save();
+    // Get the local file path for the document to send to AI
+    const filePath = doc.storageKey; // This should be the real path in a production environment
+    
+    // Call the actual AI Service instead of using hardcoded data
+    const result = await aiService.processDocument(
+      doc._id, 
+      doc.documentType, 
+      filePath, 
+      'mr', 
+      doc.uploadedBy, 
+      doc.acquisitionRequestId
+    );
+    
+    if (result && result.success === false) {
+      throw new Error(result.error || "AI processing failed");
+    }
 
     // Advance linked LandRecord lifecycle to PENDING_VERIFICATION
     if (doc.landRecordId) {
@@ -410,49 +338,16 @@ async function processAIDocument(documentId) {
         landRec.statusHistory.push({
           status: ACQUISITION_STATUS.PENDING_VERIFICATION,
           changedAt: new Date(),
-          remarks: 'AI document extraction completed (Prototype Mode). Ready for Data Checker verification.',
+          remarks: 'AI document extraction completed. Ready for Data Checker verification.',
         });
         await landRec.save();
       }
     }
 
-    logger.info(`AI extraction completed for ${documentId}`, {
-      status: doc.processingStatus,
-      surveyConfidence: fields.surveyNumber.confidence,
-    });
-
-    return extraction;
+    return result;
   } catch (err) {
-    doc.aiProcessingStatus = 'FAILED';
-    doc.processingStatus = DOCUMENT_PROCESSING_STATUS.EXTRACTION_FAILED;
-    await doc.save();
-
-    // Update LandRecord to AI_FAILED if linked
-    if (doc.landRecordId) {
-      const landRec = await LandRecord.findById(doc.landRecordId);
-      if (landRec && ['SUBMITTED', 'AI_PROCESSING'].includes(landRec.acquisitionStatus)) {
-        landRec.acquisitionStatus = ACQUISITION_STATUS.AI_FAILED;
-        landRec.statusHistory.push({
-          status: ACQUISITION_STATUS.AI_FAILED,
-          changedAt: new Date(),
-          remarks: 'AI extraction unavailable. Manual inspection required.',
-        });
-        await landRec.save();
-      }
-    }
-
-    const failedExtraction = new DocumentExtraction({
-      documentId: doc.documentId,
-      extractionVersion: doc.currentVersion,
-      modelName: 'manual-entry-mode',
-      status: 'FAILED',
-      fields: {},
-      rawResponse: { error: err.message, message: 'AI extraction unavailable. Switch to manual entry.' },
-    });
-    await failedExtraction.save();
-
     logger.error(`AI extraction failed for ${documentId}: ${err.message}`);
-    return failedExtraction;
+    throw err;
   }
 }
 
