@@ -277,6 +277,7 @@ async function processDocument(documentId, documentType, filePath, language, tri
   try {
     const aiServiceUrl = process.env.AI_SERVICE_URL;
     const timeoutMs = parseInt(process.env.AI_TIMEOUT_MS, 10) || 120000;
+    const aiApiKey = process.env.AI_API_KEY;
 
     const response = await axios.post(
       `${aiServiceUrl}/process-document`,
@@ -287,7 +288,10 @@ async function processDocument(documentId, documentType, filePath, language, tri
         language: language || 'mr',
         schemaVersion: 'v1',
       },
-      { timeout: timeoutMs }
+      { 
+        timeout: timeoutMs,
+        headers: aiApiKey ? { 'X-API-Key': aiApiKey } : {}
+      }
     );
 
     const responseData = response.data;
